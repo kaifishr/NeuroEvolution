@@ -9,6 +9,9 @@ runs/
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
+# PyCharm
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

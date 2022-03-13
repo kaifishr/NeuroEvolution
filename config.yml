@@ -20,9 +20,21 @@ subset: 0.05
 n_dims_hidden: 64
 n_layers_hidden: 4
 
+###########
+# Evolution
+###########
+# Network topology search with genetic optimization.
+n_generations: 100000
+n_agents: 4  # n_organisms
+# Not used parameters
+local_mutation_rate: -1
+global_mutation_rate: -1
+increase_epochs_every_n: -1
+
 ##########
 # Training
 ##########
+# Parameter optimization with gradient descent.
 n_epochs: 1
 learning_rate: 1.0e-3
 step_size: 999999999
