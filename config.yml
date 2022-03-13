@@ -1,0 +1,49 @@
+############
+# Parameters
+############
+
+######
+# Data
+######
+# fashion_mnist, cifar10, cifar100
+# dataset: "blobs"
+# dataset: "mnist"
+dataset: "fashion_mnist"
+# dataset: "cifar10"
+# dataset: "cifar100"
+# Use subset of dataset: float (0, 1]
+subset: 0.05
+
+#########
+# Network
+#########
+n_dims_hidden: 64
+n_layers_hidden: 4
+
+##########
+# Training
+##########
+n_epochs: 1
+learning_rate: 1.0e-3
+step_size: 999999999
+gamma: 1.0
+weight_decay: 2.0e-5
+batch_size: 8
+dropout_rate: 0.05
+
+###############
+# Miscellaneous
+###############
+random_seed: 69
+n_workers: 1
+stats_every_n_epochs: 1
+
+hparams:
+  _n_dims_hidden:
+    mutate: true
+    scale: "linear"
+    type: "int"
+    step_size: 1
+    val: 4
+    val_min: 1
+    val_max: 9
