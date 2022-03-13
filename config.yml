@@ -12,13 +12,13 @@ dataset: "fashion_mnist"
 # dataset: "cifar10"
 # dataset: "cifar100"
 # Use subset of dataset: float (0, 1]
-subset: 0.05
+subset_ratio: 0.1
 
 #########
 # Network
 #########
 n_dims_hidden: 64
-n_layers_hidden: 4
+n_layers_hidden: 6
 
 ###########
 # Evolution
@@ -35,13 +35,13 @@ increase_epochs_every_n: -1
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 1
+n_epochs: 2
 learning_rate: 1.0e-3
 step_size: 999999999
 gamma: 1.0
-weight_decay: 2.0e-5
-batch_size: 8
-dropout_rate: 0.05
+weight_decay: 1.0e-4
+batch_size: 32
+dropout_rate: 0.1
 
 ###############
 # Miscellaneous
@@ -59,3 +59,6 @@ hparams:
     val: 4
     val_min: 1
     val_max: 9
+  _n_layers_hidden:
+    mutate: true
+    # ...
