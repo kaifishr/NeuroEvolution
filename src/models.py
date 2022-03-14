@@ -4,6 +4,14 @@ import torch.nn as nn
 
 
 class MLP(nn.Module):
+    """Fully connected neural network.
+
+    Network uses Tanh activation functions to ensure that gradients exist.
+    Very small networks with ReLU activation function might not learn at all.
+
+    Attributes:
+        ...
+    """
 
     def __init__(self, config: dict) -> None:
         super().__init__()
@@ -13,6 +21,7 @@ class MLP(nn.Module):
         self.n_layers_hidden = config["n_layers_hidden"]
         self._dataset = config["dataset"]
 
+        # todo: Remove from class. Pass information via config.
         if self._dataset == "blobs":
             self.IMAGE_WIDTH = 1
             self.IMAGE_HEIGHT = 1
@@ -47,18 +56,18 @@ class MLP(nn.Module):
 
     def _make_layers(self) -> None:
         # Input layer
-        self.layers.append(nn.Linear(self.n_dims_in, self.n_dims_hidden))
+        self.layers.append(nn.Linear(self.n_dims_in, self.n_dims_hidden[0]))
         self.layers.append(nn.Tanh())
         self.layers.append(nn.Dropout(p=self.dropout_rate))
 
         # Hidden layer
-        for i in range(self.n_layers_hidden):
-            self.layers.append(nn.Linear(self.n_dims_hidden, self.n_dims_hidden))
+        for n_dims_in, n_dims_out in zip(self.n_dims_hidden[:-1], self.n_dims_hidden[1:]):
+            self.layers.append(nn.Linear(n_dims_in, n_dims_out))
             self.layers.append(nn.Tanh())
             self.layers.append(nn.Dropout(p=self.dropout_rate))
 
         # Output layer
-        self.layers.append(nn.Linear(self.n_dims_hidden, self.n_dims_out))
+        self.layers.append(nn.Linear(self.n_dims_hidden[-1], self.n_dims_out))
 
     @torch.no_grad()
     def _init_parameters(self) -> None:

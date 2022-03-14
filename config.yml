@@ -17,7 +17,7 @@ subset_ratio: 0.1
 #########
 # Network
 #########
-n_dims_hidden: 64
+n_dims_hidden: 8
 n_layers_hidden: 6
 
 ###########
@@ -25,7 +25,7 @@ n_layers_hidden: 6
 ###########
 # Network topology search with genetic optimization.
 n_generations: 100000
-n_agents: 2  # n_organisms
+n_agents: 4  # n_organisms
 # Not used parameters
 local_mutation_rate: -1
 global_mutation_rate: -1
@@ -70,12 +70,12 @@ hparams:
     type: "int"
     scale: "linear"
     step_size: 1
-    val_init: 4
+    val_init: 8
     val_min: 2
     val_max: 128
 
   n_layers_hidden:
-    mutate: true
+    mutate: false
     type: "int"
     scale: "linear"
     step_size: 1

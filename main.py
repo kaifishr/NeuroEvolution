@@ -31,7 +31,7 @@ from src.utils import (
 from src.data import get_dataloader
 
 
-def train(dataloader: tuple, config: dict, writer) -> dict:
+def train(dataloader: tuple, config: dict) -> dict:
 
     n_epochs = config["n_epochs"]
     learning_rate = config["learning_rate"]
@@ -86,6 +86,11 @@ def main():
 
     file_path = "config.yml"
     base_config = load_yaml(file_path=file_path)
+
+    # Modify config to allow evolving each layer size individually
+    n_dims_hidden = base_config["n_dims_hidden"]
+    n_layers_hidden = base_config["n_layers_hidden"]
+    base_config["n_dims_hidden"] = n_layers_hidden * [n_dims_hidden]
     print(yaml.dump(base_config))
 
     n_agents = base_config["n_agents"]
@@ -99,7 +104,6 @@ def main():
 
     dataset = base_config['dataset']
     writer = SummaryWriter(comment=f"_{dataset}_evo")
-    model_writer = None  # SummaryWriter(comment=f"_{dataset}_model")
 
     batch_size = base_config["batch_size"]
     num_workers = base_config["n_workers"]
@@ -118,7 +122,7 @@ def main():
             # if (i+1) % increase_epochs_every_n == 0:
             #     config["n_epochs"] += 1
 
-            stats = train(dataloader=dataloader, config=config, writer=model_writer)
+            stats = train(dataloader=dataloader, config=config)
 
             train_losses.append(stats["train_loss"])
             train_accuracies.append(stats["train_accuracy"])
@@ -133,7 +137,12 @@ def main():
         # Write current values of hyperparameters to Tensorboard
         for hparam_name, value in best_config.items():
             if hparam_name in hparams:
-                writer.add_scalar(f"time_series_{hparam_name}", value, global_step=i)
+                if hparam_name == "n_dims_hidden":
+                    for idx, val in enumerate(value):
+                        writer.add_scalar(f"time_series_layer_{idx}_{hparam_name}",
+                                          val, global_step=i)
+                else:
+                    writer.add_scalar(f"time_series_{hparam_name}", value, global_step=i)
 
         # Add scalars to tensorboard
         train_loss = train_losses[best_agent_idx]
@@ -152,7 +161,11 @@ def main():
 
         for hparam_name, value in best_config.items():
             if hparam_name in hparams:
-                hparam_dict[f"hparam_{hparam_name}"] = value
+                if hparam_name == "n_dims_hidden":
+                    for idx, val in enumerate(value):
+                        hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
+                else:
+                    hparam_dict[f"hparam_{hparam_name}"] = value
 
         metric_dict["metric_train_loss"] = train_loss
         metric_dict["metric_train_accuracy"] = train_accuracy

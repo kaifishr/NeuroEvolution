@@ -108,7 +108,7 @@ def get_dataloader(dataset: str, batch_size: int, num_workers: int) \
                                                      download=True,
                                                      transform=transform_train)
 
-        subset_ratio = 0.1
+        subset_ratio = 0.05
         subset_length = int(len(trainset) * subset_ratio)
         trainset = Subset(trainset, range(subset_length))
 
