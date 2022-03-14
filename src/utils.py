@@ -26,12 +26,15 @@ def get_hparams() -> list:
 
 
 @torch.no_grad()
-def comp_test_stats(model, criterion, test_loader, device):
-    model.eval()
+def comp_loss_accuracy(model, criterion, dataloader, device) -> tuple[float, float]:
+
     running_loss = 0.0
     running_accuracy = 0.0
     running_counter = 0
-    for x_data, y_data in test_loader:
+
+    model.eval()
+
+    for x_data, y_data in dataloader:
         inputs, labels = x_data.to(device), y_data.to(device)
         outputs = model(inputs)
         loss = criterion(outputs, labels).item()
@@ -39,7 +42,13 @@ def comp_test_stats(model, criterion, test_loader, device):
         running_loss += loss
         running_accuracy += pred
         running_counter += labels.size(0)
-    return running_loss / running_counter, running_accuracy / running_counter
+
+    model.train()
+
+    loss = running_loss / running_counter
+    accuracy = running_accuracy / running_counter
+
+    return loss, accuracy
 
 
 def load_yaml(file_path: str) -> dict:
