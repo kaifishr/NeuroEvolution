@@ -23,7 +23,7 @@ from itertools import permutations
 
 from src.models import MLP
 from src.utils import (
-    comp_test_stats,
+    comp_loss_accuracy,
     load_yaml,
     # set_random_seeds,
     get_hparams,
@@ -31,17 +31,12 @@ from src.utils import (
 from src.data import get_dataloader
 
 
-def train(dataloader: tuple, config: dict, writer) -> float:
+def train(dataloader: tuple, config: dict, writer) -> dict:
 
     n_epochs = config["n_epochs"]
     learning_rate = config["learning_rate"]
-    step_size = config["step_size"]
-    gamma = config["gamma"]
     weight_decay = config["weight_decay"]
-    stats_every_n_epochs = config["stats_every_n_epochs"]
-
-    # random_seed = config["random_seed"]
-    # set_random_seeds(random_seed=random_seed)
+    stats = dict()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -50,20 +45,14 @@ def train(dataloader: tuple, config: dict, writer) -> float:
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 
     trainloader, testloader = dataloader
 
     for epoch in range(n_epochs):
 
-        running_loss = 0.0
-        running_accuracy = 0.0
-        running_counter = 0
-
-        model.train()
         for x_data, y_data in trainloader:
 
-            # get the inputs; data is a list of [inputs, lables]
+            # get data
             inputs, labels = x_data.to(device), y_data.to(device)
 
             # zero the parameter gradients
@@ -75,37 +64,22 @@ def train(dataloader: tuple, config: dict, writer) -> float:
             loss.backward()
             optimizer.step()
 
-            # keeping track of statistics
-            running_loss += loss.item()
-            running_accuracy += (torch.argmax(outputs, dim=1) == labels).float().sum().item()
-            running_counter += labels.size(0)
+    test_loss, test_accuracy = comp_loss_accuracy(model=model,
+                                                  criterion=criterion,
+                                                  dataloader=testloader,
+                                                  device=device)
 
-        # if (epoch % stats_every_n_epochs == 0) or (epoch + 1 == n_epochs):  # print every n epochs
-        #     running_loss = running_loss / running_counter
-        #     running_accuracy = running_accuracy / running_counter
+    train_loss, train_accuracy = comp_loss_accuracy(model=model,
+                                                    criterion=criterion,
+                                                    dataloader=trainloader,
+                                                    device=device)
 
-        #     writer.add_scalar("train_loss", running_loss, epoch)
-        #     writer.add_scalar("train_accuracy", running_accuracy, epoch)
+    stats["test_loss"] = test_loss
+    stats["train_loss"] = train_loss
+    stats["test_accuracy"] = test_accuracy
+    stats["train_accuracy"] = train_accuracy
 
-        #     test_loss, test_accuracy = comp_test_stats(model=model,
-        #                                                criterion=criterion,
-        #                                                test_loader=testloader,
-        #                                                device=device)
-        #     writer.add_scalar("test_loss", test_loss, epoch)
-        #     writer.add_scalar("test_accuracy", test_accuracy, epoch)
-        #     print(f"{epoch:04d} {running_loss:.3f} {running_accuracy:.4f} {test_loss:.3f} {test_accuracy:.3f}")
-
-        # scheduler.step()
-
-    test_loss, test_accuracy = comp_test_stats(model=model,
-                                               criterion=criterion,
-                                               test_loader=testloader,
-                                               device=device)
-
-    train_loss = running_loss / running_counter
-    train_accuracy = running_accuracy / running_counter
-
-    return train_loss, train_accuracy, test_loss, test_accuracy
+    return stats
 
 
 def main():
@@ -139,30 +113,27 @@ def main():
         train_accuracies = list()
         test_losses = list()
         test_accuracies = list()
+
         for config in configs:
             # if (i+1) % increase_epochs_every_n == 0:
             #     config["n_epochs"] += 1
-            # todo: return stats as dict to allow better iteration
-            stats = train(dataloader=dataloader, config=config, writer=model_writer)
-            train_loss, train_accuracy, test_loss, test_accuracy = stats
-            train_losses.append(train_loss)
-            train_accuracies.append(train_accuracy)
-            test_losses.append(test_loss)
-            test_accuracies.append(test_accuracy)
 
-        # Get best agent
+            stats = train(dataloader=dataloader, config=config, writer=model_writer)
+
+            train_losses.append(stats["train_loss"])
+            train_accuracies.append(stats["train_accuracy"])
+            test_losses.append(stats["test_loss"])
+            test_accuracies.append(stats["test_accuracy"])
+
+        # Get the best agent of current iteration
         best_agent_idx = np.argmin(test_losses)
-        # best_agent_idx = np.argmin(train_losses)
         best_config = configs[best_agent_idx]
+        configs = [mutate_config(config=best_config) for _ in range(n_agents)]
 
         # Write current values of hyperparameters to Tensorboard
         for hparam_name, value in best_config.items():
             if hparam_name in hparams:
                 writer.add_scalar(f"time_series_{hparam_name}", value, global_step=i)
-
-        print(yaml.dump(best_config))
-
-        configs = [mutate_config(config=best_config) for _ in range(n_agents)]
 
         # Add scalars to tensorboard
         train_loss = train_losses[best_agent_idx]
@@ -191,7 +162,6 @@ def main():
         writer.add_hparams(hparam_dict=hparam_dict, metric_dict=metric_dict, run_name=f"gen_{i}")
 
     writer.close()
-    # model_writer.close()
 
 
 if __name__ == "__main__":
