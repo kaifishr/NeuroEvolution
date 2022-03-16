@@ -8,8 +8,8 @@
 # fashion_mnist, cifar10, cifar100
 # dataset: "blobs"
 # dataset: "mnist"
-dataset: "fashion_mnist"
-# dataset: "cifar10"
+# dataset: "fashion_mnist"
+dataset: "cifar10"
 # dataset: "cifar100"
 # Use subset of dataset: float (0, 1]
 subset_ratio: 0.1
@@ -35,7 +35,7 @@ increase_epochs_every_n: -1
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 1
+n_epochs: 4
 step_size: 999999999
 learning_rate: 1.0e-3
 gamma: 1.0
@@ -58,7 +58,8 @@ hparams:
 
   weight_decay:
     mutate: true
-    type: "float"
+    type: "scalar"
+    dtype: "float"
     scale: "log"
     step_size: 0.
     val_init: 4
@@ -67,7 +68,8 @@ hparams:
 
   n_dims_hidden:
     mutate: true
-    type: "int"
+    type: "vector"
+    dtype: "int"
     scale: "linear"
     step_size: 1
     val_init: 8
@@ -76,7 +78,8 @@ hparams:
 
   n_layers_hidden:
     mutate: false
-    type: "int"
+    type: "scalar"
+    dtype: "int"
     scale: "linear"
     step_size: 1
     val_init: 4

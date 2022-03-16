@@ -51,21 +51,6 @@ def comp_loss_accuracy(model, criterion, dataloader, device) -> tuple[float, flo
     return loss, accuracy
 
 
-def load_yaml(file_path: str) -> dict:
-    """Loads YAML file.
-
-    Args:
-        file_path: Path to yaml file.
-
-    Returns:
-        Dictionary holding content of yaml file.
-
-    """
-    with open(file_path, "r") as fp:
-        try:
-            return yaml.safe_load(fp)
-        except yaml.YAMLError as exc:
-            print(exc)
 
 
 # def set_random_seeds(random_seed: int) -> None:

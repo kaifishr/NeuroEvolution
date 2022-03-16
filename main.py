@@ -1,34 +1,26 @@
 """Evolution of neural networks with genetic algorithms.
 
 todo:
-    - add hyperparameters to tensorboard to see correlations between parameters
     - mutate according to magnitude
-    - move dataloader to main()
 """
 from src.mutate import mutate_config
-
-import copy
-
-import numpy as np
-import random
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import yaml
-import time
-
-from torch.utils.tensorboard import SummaryWriter
-
-from itertools import permutations
-
 from src.models import MLP
 from src.utils import (
     comp_loss_accuracy,
-    load_yaml,
     # set_random_seeds,
     get_hparams,
 )
 from src.data import get_dataloader
+from src.config import load_config
+
+import copy
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import yaml
+
+from torch.utils.tensorboard import SummaryWriter
 
 
 def train(dataloader: tuple, config: dict) -> dict:
@@ -85,12 +77,7 @@ def train(dataloader: tuple, config: dict) -> dict:
 def main():
 
     file_path = "config.yml"
-    base_config = load_yaml(file_path=file_path)
-
-    # Modify config to allow evolving each layer size individually
-    n_dims_hidden = base_config["n_dims_hidden"]
-    n_layers_hidden = base_config["n_layers_hidden"]
-    base_config["n_dims_hidden"] = n_layers_hidden * [n_dims_hidden]
+    base_config = load_config(file_path=file_path)
     print(yaml.dump(base_config))
 
     n_agents = base_config["n_agents"]
@@ -105,9 +92,7 @@ def main():
     dataset = base_config['dataset']
     writer = SummaryWriter(comment=f"_{dataset}_evo")
 
-    batch_size = base_config["batch_size"]
-    num_workers = base_config["n_workers"]
-    dataloader = get_dataloader(dataset=dataset, batch_size=batch_size, num_workers=num_workers)
+    dataloader = get_dataloader(config=base_config)
 
     for i in range(n_generations):
         print(f"Iteration {i:05d}")
