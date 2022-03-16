@@ -12,13 +12,13 @@
 dataset: "cifar10"
 # dataset: "cifar100"
 # Use subset of dataset: float (0, 1]
-subset_ratio: 0.1
+subset_ratio: 0.05
 
 #########
 # Network
 #########
-n_dims_hidden: 8
-n_layers_hidden: 6
+# n_dims_hidden: 8
+# n_layers_hidden: 6
 
 ###########
 # Evolution
@@ -26,22 +26,20 @@ n_layers_hidden: 6
 # Network topology search with genetic optimization.
 n_generations: 100000
 n_agents: 4  # n_organisms
-# Not used parameters
+# Currently not used parameters
 local_mutation_rate: -1
 global_mutation_rate: -1
-increase_epochs_every_n: -1
+increase_epochs_every_n_epochs: -1
 
 ##########
-# Training
+# Trainitng
 ##########
 # Parameter optimization with gradient descent.
 n_epochs: 4
-step_size: 999999999
-learning_rate: 1.0e-3
-gamma: 1.0
-weight_decay: 1.0e-4
-batch_size: 32
-dropout_rate: 0.1
+# learning_rate: 1.0e-3
+# weight_decay: 1.0e-4
+# batch_size: 32
+# dropout_rate: 0.1
 
 ###############
 # Miscellaneous
@@ -56,24 +54,56 @@ stats_every_n_epochs: 1
 # todo: add these to extra file hparams.yml?
 hparams:
 
+  # Hyperparameters
+  learning_rate:
+    mutate: true
+    type: "scalar"
+    dtype: "float"
+    scale: "log"
+    step_size: -1
+    val_init: 1.0e-4
+    val_min: 1.0e-5
+    val_max: 1.0e-3
+
+  batch_size:
+    mutate: true
+    type: "scalar"
+    dtype: "int"
+    scale: "linear"
+    step_size: 1
+    val_init: 32
+    val_min: 8
+    val_max: 128
+
+  dropout_rate:
+    mutate: true
+    type: "scalar"
+    dtype: "float"
+    scale: "linear"
+    step_size: 0.01
+    val_init: 0.25
+    val_min: 0.0
+    val_max: 0.5
+
   weight_decay:
     mutate: true
     type: "scalar"
     dtype: "float"
     scale: "log"
-    step_size: 0.
+    step_size: -1
     val_init: 4
     val_min: 2
     val_max: 128
 
+  # Network
   n_dims_hidden:
     mutate: true
-    type: "vector"
+    type: "vector"  # list
     dtype: "int"
     scale: "linear"
     step_size: 1
     val_init: 8
-    val_min: 2
+    val_min: 16
     val_max: 128
 
   n_layers_hidden:

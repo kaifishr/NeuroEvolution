@@ -79,6 +79,7 @@ def main():
     file_path = "config.yml"
     base_config = load_config(file_path=file_path)
     print(yaml.dump(base_config))
+    exit()
 
     n_agents = base_config["n_agents"]
     n_generations = base_config["n_generations"]

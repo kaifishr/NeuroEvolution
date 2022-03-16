@@ -32,8 +32,8 @@ def load_config(file_path: str) -> dict:
     config = load_yaml(file_path=file_path)
 
     # Modify config to allow evolving each layer size individually
-    n_dims_hidden = config["n_dims_hidden"]
-    n_layers_hidden = config["n_layers_hidden"]
-    config["n_dims_hidden"] = n_layers_hidden * [n_dims_hidden]
+    n_dims_hidden = config["hparams"]["n_dims_hidden"]["val_init"]
+    n_layers_hidden = config["hparams"]["n_layers_hidden"]["val_init"]
+    config["hparams"]["n_dims_hidden"]["val_init"] = n_layers_hidden * [n_dims_hidden]
 
     return config

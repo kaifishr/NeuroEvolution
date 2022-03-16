@@ -27,7 +27,17 @@ def get_hparams() -> list:
 
 @torch.no_grad()
 def comp_loss_accuracy(model, criterion, dataloader, device) -> tuple[float, float]:
+    """Compute loss and accuracy for provided model and dataloader.
 
+    Args:
+        model:
+        criterion:
+        dataloader:
+        device:
+
+    Returns:
+
+    """
     running_loss = 0.0
     running_accuracy = 0.0
     running_counter = 0
@@ -51,15 +61,13 @@ def comp_loss_accuracy(model, criterion, dataloader, device) -> tuple[float, flo
     return loss, accuracy
 
 
+def set_random_seeds(random_seed: int) -> None:
+    """Seeds random number generators of PyTorch, Numpy, and Random module.
 
+    Args:
+        random_seed: Initial random seed.
 
-# def set_random_seeds(random_seed: int) -> None:
-#     """Seeds random number generators of PyTorch, Numpy, and Random module.
-#
-#     Args:
-#         random_seed: Initial random seed.
-#
-#     """
-#     torch.manual_seed(random_seed)
-#     np.random.seed(random_seed)
-#     # random.seed(random_seed)
+    """
+    torch.manual_seed(random_seed)
+    np.random.seed(random_seed)
+    random.seed(random_seed)

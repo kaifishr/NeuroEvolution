@@ -7,6 +7,54 @@ from torch.utils.data import DataLoader, Subset
 from sklearn.datasets import make_blobs
 
 
+def get_cifar10(batch_size: int, n_workers: int, subset_ratio: float, **config: dict) -> tuple:
+
+    avg = (0.4914, 0.4822, 0.4465)
+    std = (0.2023, 0.1994, 0.2010)
+
+    train_transforms = [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(degrees=10),
+        transforms.RandomCrop(32, padding=5),
+        transforms.ToTensor(),
+        transforms.Normalize(avg, std)
+    ]
+
+    test_transforms = [
+        transforms.ToTensor(),
+        transforms.Normalize(avg, std)
+    ]
+
+    transform_train = transforms.Compose(train_transforms)
+    transform_test = transforms.Compose(test_transforms)
+
+    # Trainset
+
+    trainset_config = dict(root="./data", train=True, download=True, transform=transform_train)
+    trainset = torchvision.datasets.CIFAR10(**trainset_config)
+
+    subset_length = int(len(trainset) * subset_ratio)
+    trainset = Subset(trainset, range(subset_length))
+
+    trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True,
+                              num_workers=n_workers, pin_memory=False)
+    trainloader = DataLoader(**trainloader_config)
+
+    # Testset
+
+    testset_config = dict(root="./data", train=False, download=True, transform=transform_test)
+    testset = torchvision.datasets.CIFAR10(**testset_config)
+
+    subset_length = int(len(testset) * subset_ratio)
+    testset = Subset(testset, range(subset_length))
+
+    testloader_config = dict(dataset=testset, batch_size=2 * batch_size, shuffle=False,
+                             num_workers=n_workers, pin_memory=False)
+    testloader = DataLoader(**testloader_config)
+
+    return trainloader, testloader
+
+
 def get_dataloader(config: dict) -> tuple[DataLoader, DataLoader]:
 
     dataset = config["dataset"]
@@ -15,48 +63,7 @@ def get_dataloader(config: dict) -> tuple[DataLoader, DataLoader]:
     subset_ratio = config["subset_ratio"]
 
     if dataset == "cifar10":
-
-        avg = (0.4914, 0.4822, 0.4465)
-        std = (0.2023, 0.1994, 0.2010)
-
-        train_transforms = [
-            transforms.RandomHorizontalFlip(),
-            # transforms.RandomVerticalFlip(),
-            transforms.RandomRotation(degrees=10),
-            transforms.RandomCrop(32, padding=5),
-            transforms.ToTensor(),
-            transforms.Normalize(avg, std)
-        ]
-
-        test_transforms = [
-            transforms.ToTensor(),
-            transforms.Normalize(avg, std)
-        ]
-
-        transform_train = transforms.Compose(train_transforms)
-        transform_test = transforms.Compose(test_transforms)
-
-        # Trainset
-
-        trainset_config = dict(root="./data", train=True, download=True, transform=transform_train)
-        trainset = torchvision.datasets.CIFAR10(**trainset_config)
-
-        subset_length = int(len(trainset) * subset_ratio)
-        trainset = Subset(trainset, range(subset_length))
-
-        trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True, num_workers=n_workers, pin_memory=False)
-        trainloader = DataLoader(**trainloader_config)
-
-        # Testset
-
-        testset_config = dict(root="./data", train=False, download=True, transform=transform_test)
-        testset = torchvision.datasets.CIFAR10(**testset_config)
-
-        subset_length = int(len(testset) * subset_ratio)
-        testset = Subset(testset, range(subset_length))
-
-        testloader_config = dict(dataset=testset, batch_size=2*batch_size, shuffle=False, num_workers=n_workers, pin_memory=False)
-        testloader = DataLoader(**testloader_config)
+        trainloader, testloader = get_cifar10(**config)
 
     elif dataset == "cifar100":
 
