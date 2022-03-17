@@ -12,3 +12,4 @@ Currently only fully-connected neural networks (Multilayer perceptrons (MLPs)) a
     - Improve handling of parameter mutation with enriched config.
     - Improve logic of parameter mutation.
     - Implement better dataloader for neuroevolution that works with subsets.
+    - Only change network topology? Or also hyperparameters?

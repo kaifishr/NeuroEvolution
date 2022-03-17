@@ -19,6 +19,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
+import json
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -26,8 +27,8 @@ from torch.utils.tensorboard import SummaryWriter
 def train(dataloader: tuple, config: dict) -> dict:
 
     n_epochs = config["n_epochs"]
-    learning_rate = config["learning_rate"]
-    weight_decay = config["weight_decay"]
+    learning_rate = config["hparams"]["learning_rate"]["val"]
+    weight_decay = config["hparams"]["weight_decay"]["val"]
     stats = dict()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -78,8 +79,6 @@ def main():
 
     file_path = "config.yml"
     base_config = load_config(file_path=file_path)
-    print(yaml.dump(base_config))
-    exit()
 
     n_agents = base_config["n_agents"]
     n_generations = base_config["n_generations"]
@@ -88,12 +87,10 @@ def main():
     configs = [copy.deepcopy(base_config) for _ in range(n_agents)]
 
     # Parameters to track
-    hparams = get_hparams()
+    # hparams = get_hparams()
 
     dataset = base_config['dataset']
-    writer = SummaryWriter(comment=f"_{dataset}_evo")
-
-    dataloader = get_dataloader(config=base_config)
+    writer = SummaryWriter(comment=f"_{dataset}")
 
     for i in range(n_generations):
         print(f"Iteration {i:05d}")
@@ -108,6 +105,7 @@ def main():
             # if (i+1) % increase_epochs_every_n == 0:
             #     config["n_epochs"] += 1
 
+            dataloader = get_dataloader(config=config)
             stats = train(dataloader=dataloader, config=config)
 
             train_losses.append(stats["train_loss"])
@@ -119,6 +117,11 @@ def main():
         best_agent_idx = np.argmin(test_losses)
         best_config = configs[best_agent_idx]
         configs = [mutate_config(config=best_config) for _ in range(n_agents)]
+
+        for cfg in configs:
+            print(json.dumps(cfg, indent=4))
+        print()
+        exit()
 
         # Write current values of hyperparameters to Tensorboard
         for hparam_name, value in best_config.items():
