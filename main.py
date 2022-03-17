@@ -8,7 +8,6 @@ from src.models import MLP
 from src.utils import (
     comp_loss_accuracy,
     # set_random_seeds,
-    get_hparams,
 )
 from src.data import get_dataloader
 from src.config import load_config
@@ -18,7 +17,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import yaml
 import json
 
 from torch.utils.tensorboard import SummaryWriter
@@ -27,8 +25,8 @@ from torch.utils.tensorboard import SummaryWriter
 def train(dataloader: tuple, config: dict) -> dict:
 
     n_epochs = config["n_epochs"]
-    learning_rate = config["hparams"]["learning_rate"]["val"]
-    weight_decay = config["hparams"]["weight_decay"]["val"]
+    learning_rate = config["hparam"]["learning_rate"]["val"]
+    weight_decay = config["hparam"]["weight_decay"]["val"]
     stats = dict()
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -57,16 +55,20 @@ def train(dataloader: tuple, config: dict) -> dict:
             loss.backward()
             optimizer.step()
 
-    test_loss, test_accuracy = comp_loss_accuracy(model=model,
-                                                  criterion=criterion,
-                                                  dataloader=testloader,
-                                                  device=device)
+    # test_loss, test_accuracy = comp_loss_accuracy(model=model,
+    #                                               criterion=criterion,
+    #                                               dataloader=testloader,
+    #                                               device=device)
 
-    train_loss, train_accuracy = comp_loss_accuracy(model=model,
-                                                    criterion=criterion,
-                                                    dataloader=trainloader,
-                                                    device=device)
+    # train_loss, train_accuracy = comp_loss_accuracy(model=model,
+    #                                                 criterion=criterion,
+    #                                                 dataloader=trainloader,
+    #                                                 device=device)
 
+    test_loss = 0.0
+    train_loss = 0.0
+    test_accuracy = 0.0
+    train_accuracy = 0.0
     stats["test_loss"] = test_loss
     stats["train_loss"] = train_loss
     stats["test_accuracy"] = test_accuracy
@@ -77,17 +79,16 @@ def train(dataloader: tuple, config: dict) -> dict:
 
 def main():
 
-    file_path = "config.yml"
-    base_config = load_config(file_path=file_path)
+    config_path = "config.yml"
+    hparam_path = "hparams.yml"
+
+    base_config = load_config(config_path=config_path, hparam_path=hparam_path)
 
     n_agents = base_config["n_agents"]
     n_generations = base_config["n_generations"]
 
     # Use same config initially
     configs = [copy.deepcopy(base_config) for _ in range(n_agents)]
-
-    # Parameters to track
-    # hparams = get_hparams()
 
     dataset = base_config['dataset']
     writer = SummaryWriter(comment=f"_{dataset}")
@@ -118,20 +119,14 @@ def main():
         best_config = configs[best_agent_idx]
         configs = [mutate_config(config=best_config) for _ in range(n_agents)]
 
-        for cfg in configs:
-            print(json.dumps(cfg, indent=4))
-        print()
-        exit()
-
         # Write current values of hyperparameters to Tensorboard
-        for hparam_name, value in best_config.items():
-            if hparam_name in hparams:
-                if hparam_name == "n_dims_hidden":
-                    for idx, val in enumerate(value):
-                        writer.add_scalar(f"time_series_layer_{idx}_{hparam_name}",
-                                          val, global_step=i)
-                else:
-                    writer.add_scalar(f"time_series_{hparam_name}", value, global_step=i)
+        for hparam_name, hparam in best_config["hparam"].items():
+            if hparam_name == "n_dims_hidden":
+                for idx, val in enumerate(hparam["val"]):
+                    writer.add_scalar(f"time_series_layer_{idx}_{hparam_name}",
+                                      val, global_step=i)
+            else:
+                writer.add_scalar(f"time_series_{hparam_name}", hparam["val"], global_step=i)
 
         # Add scalars to tensorboard
         train_loss = train_losses[best_agent_idx]
@@ -148,13 +143,12 @@ def main():
         hparam_dict = dict()
         metric_dict = dict()
 
-        for hparam_name, value in best_config.items():
-            if hparam_name in hparams:
-                if hparam_name == "n_dims_hidden":
-                    for idx, val in enumerate(value):
-                        hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
-                else:
-                    hparam_dict[f"hparam_{hparam_name}"] = value
+        for hparam_name, hparam in best_config["hparam"].items():
+            if hparam_name == "n_dims_hidden":
+                for idx, val in enumerate(hparam["val"]):
+                    hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
+            else:
+                hparam_dict[f"hparam_{hparam_name}"] = hparam["val"]
 
         metric_dict["metric_train_loss"] = train_loss
         metric_dict["metric_train_accuracy"] = train_accuracy

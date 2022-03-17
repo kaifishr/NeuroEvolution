@@ -15,9 +15,9 @@ class MLP(nn.Module):
     def __init__(self, config: dict) -> None:
         super().__init__()
 
-        self.dropout_rate = config["hparams"]["dropout_rate"]["val"]
-        self.n_dims_hidden = config["hparams"]["n_dims_hidden"]["val"]
-        self.n_layers_hidden = config["hparams"]["n_layers_hidden"]["val"]
+        self.dropout_rate = config["hparam"]["dropout_rate"]["val"]
+        self.n_dims_hidden = config["hparam"]["n_dims_hidden"]["val"]
+        self.n_layers_hidden = config["hparam"]["n_layers_hidden"]["val"]
         self._dataset = config["dataset"]
 
         # todo: Remove from class. Pass information via config.

@@ -5,113 +5,31 @@
 ######
 # Data
 ######
-# fashion_mnist, cifar10, cifar100
-# dataset: "blobs"
-# dataset: "mnist"
+# str: blobs, mnist, fashion_mnist, cifar10, cifar100
 dataset: "fashion_mnist"
-# dataset: "cifar10"
-# dataset: "cifar100"
-# Use subset of dataset: float (0, 1]
+# float: Use subset of dataset: float (0, 1]
 subset_ratio: 0.05
-
-#########
-# Network
-#########
-# n_dims_hidden: 8
-# n_layers_hidden: 6
 
 ###########
 # Evolution
 ###########
 # Network topology search with genetic optimization.
-n_generations: 100000
-n_agents: 2  # n_organisms
-# Currently not used parameters
-local_mutation_rate: -1
-global_mutation_rate: -1
+n_generations: 9999999999
+n_agents: 4
+global_mutation_rate: 0.5
+local_mutation_rate: 0.1
 increase_epochs_every_n_epochs: -1
 
 ##########
-# Trainitng
+# Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 2
-# learning_rate: 1.0e-3
-# weight_decay: 1.0e-4
-# batch_size: 32
-# dropout_rate: 0.1
+n_epochs: 0
 
 ###############
 # Miscellaneous
 ###############
+use_gpu: true
 random_seed: 69
 n_workers: 1
 stats_every_n_epochs: 1
-
-#################
-# Hyperparameters
-#################
-# todo: add these to extra file hparams.yml?
-hparams:
-
-  # Hyperparameters
-  learning_rate:
-    mutate: true
-    type: "scalar"
-    dtype: "float"
-    scale: "log"
-    step_size: -1
-    val: 1.0e-4
-    val_min: 1.0e-5
-    val_max: 1.0e-3
-
-  batch_size:
-    mutate: true
-    type: "scalar"
-    dtype: "int"
-    scale: "linear"
-    step_size: 1
-    val: 32
-    val_min: 8
-    val_max: 128
-
-  dropout_rate:
-    mutate: true
-    type: "scalar"
-    dtype: "float"
-    scale: "linear"
-    step_size: 0.01
-    val: 0.25
-    val_min: 0.0
-    val_max: 0.5
-
-  weight_decay:
-    mutate: true
-    type: "scalar"
-    dtype: "float"
-    scale: "log"
-    step_size: -1
-    val: 4
-    val_min: 2
-    val_max: 128
-
-  # Network
-  n_dims_hidden:
-    mutate: true
-    type: "vector"  # list
-    dtype: "int"
-    scale: "linear"
-    step_size: 1
-    val: 8
-    val_min: 16
-    val_max: 128
-
-  n_layers_hidden:
-    mutate: false
-    type: "scalar"
-    dtype: "int"
-    scale: "linear"
-    step_size: 1
-    val: 4
-    val_min: 1
-    val_max: 8

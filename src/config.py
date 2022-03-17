@@ -18,22 +18,29 @@ def load_yaml(file_path: str) -> dict:
             print(exc)
 
 
-def load_config(file_path: str) -> dict:
+def load_config(config_path: str, hparam_path: str) -> dict:
     """Loads and enriches configuration file with additional information.
 
     Args:
-        file_path: Path to configuration file.
+        config_path: Path to configuration file.
+        hparam_path: Path to file with hyperparameters.
 
     Returns:
         Configuration as Python dictionary.
 
     """
-    # Load yaml configuration file.
-    config = load_yaml(file_path=file_path)
+    configuration = dict()
+
+    # Load configuration files
+    config = load_yaml(file_path=config_path)
+    hparam = load_yaml(file_path=hparam_path)
+
+    configuration.update(config)
+    configuration.update(hparam)
 
     # Modify config to allow evolving each layer size individually
-    n_dims_hidden = config["hparams"]["n_dims_hidden"]["val"]
-    n_layers_hidden = config["hparams"]["n_layers_hidden"]["val"]
-    config["hparams"]["n_dims_hidden"]["val"] = n_layers_hidden * [n_dims_hidden]
+    n_dims_hidden = configuration["hparam"]["n_dims_hidden"]["val"]
+    n_layers_hidden = configuration["hparam"]["n_layers_hidden"]["val"]
+    configuration["hparam"]["n_dims_hidden"]["val"] = n_layers_hidden * [n_dims_hidden]
 
-    return config
+    return configuration

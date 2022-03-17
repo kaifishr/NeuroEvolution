@@ -1,0 +1,68 @@
+#################
+# Hyperparameters
+#################
+
+hparam:
+  # Mutable hyperparameters for network optimization with gradient descent.
+
+  learning_rate:
+    mutate: true
+    dtype: "float"
+    ptype: "scalar"
+    scale: "log"
+    step_size: -1
+    val: 1.0e-4
+    val_min: 1.0e-5
+    val_max: 1.0e-3
+
+  batch_size:
+    mutate: true
+    dtype: "int"
+    ptype: "scalar"
+    scale: "linear"
+    step_size: 1
+    val: 32
+    val_min: 8
+    val_max: 128
+
+  dropout_rate:
+    mutate: true
+    dtype: "float"
+    ptype: "scalar"
+    scale: "linear"
+    step_size: 0.01
+    val: 0.25
+    val_min: 0.0
+    val_max: 0.5
+
+  weight_decay:
+    mutate: true
+    dtype: "float"
+    ptype: "scalar"
+    scale: "log"
+    step_size: -1
+    val: 1.0e-05
+    val_min: 1.0e-6
+    val_max: 1.0e-2
+
+  # Mutable hyperparameters for network topology optimization.
+
+  n_dims_hidden:
+    mutate: true
+    dtype: "int"
+    ptype: "vector"  # list, array?
+    scale: "linear"
+    step_size: 1
+    val: 8
+    val_min: 4
+    val_max: 128
+
+  n_layers_hidden:
+    mutate: false
+    dtype: "int"
+    ptype: "scalar"
+    scale: "linear"
+    step_size: 1
+    val: 4
+    val_min: 1
+    val_max: 8

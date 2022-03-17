@@ -9,7 +9,7 @@ from sklearn.datasets import make_blobs
 
 def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
-    batch_size = config["hparams"]["batch_size"]["val"]
+    batch_size = config["hparam"]["batch_size"]["val"]
 
     avg = (0.4914, 0.4822, 0.4465)
     std = (0.2023, 0.1994, 0.2010)
@@ -59,7 +59,7 @@ def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
 def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
-    batch_size = config["hparams"]["batch_size"]["val"]
+    batch_size = config["hparam"]["batch_size"]["val"]
 
     avg = (0.4914, 0.4822, 0.4465)
     std = (0.2023, 0.1994, 0.2010)
@@ -111,7 +111,7 @@ def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config:
 
 def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
-    batch_size = config["hparams"]["batch_size"]["val"]
+    batch_size = config["hparam"]["batch_size"]["val"]
 
     # Fashion-MNIST
     avg = (0.2859,)
@@ -179,7 +179,7 @@ def get_dataloader(config: dict) -> tuple[DataLoader, DataLoader]:
 
     elif dataset == "blobs":
 
-        batch_size = config["hparams"]["batch_size"]["val"]
+        batch_size = config["hparam"]["batch_size"]["val"]
 
         def _normalize(x, a: int = -1.0, b: int = 1.0):
             x_min = np.min(x, axis=0, keepdims=True)
