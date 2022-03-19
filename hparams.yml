@@ -3,6 +3,7 @@
 #################
 
 hparam:
+
   # Mutable hyperparameters for network optimization with gradient descent.
 
   learning_rate:
@@ -10,10 +11,10 @@ hparam:
     dtype: "float"
     ptype: "scalar"
     scale: "log"
-    step_size: -1
+    step_size: 0.1
     val: 1.0e-4
     val_min: 1.0e-5
-    val_max: 1.0e-3
+    val_max: 1.0e-2
 
   batch_size:
     mutate: true
@@ -21,8 +22,8 @@ hparam:
     ptype: "scalar"
     scale: "linear"
     step_size: 1
-    val: 32
-    val_min: 8
+    val: 64
+    val_min: 1
     val_max: 128
 
   dropout_rate:
@@ -40,8 +41,8 @@ hparam:
     dtype: "float"
     ptype: "scalar"
     scale: "log"
-    step_size: -1
-    val: 1.0e-05
+    step_size: 0.1
+    val: 1.0e-04
     val_min: 1.0e-6
     val_max: 1.0e-2
 
@@ -55,7 +56,7 @@ hparam:
     step_size: 1
     val: 8
     val_min: 4
-    val_max: 128
+    val_max: 32
 
   n_layers_hidden:
     mutate: false

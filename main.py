@@ -1,80 +1,16 @@
 """Evolution of neural networks with genetic algorithms.
 
-todo:
-    - mutate according to magnitude
 """
-from src.mutate import mutate_config
-from src.models import MLP
-from src.utils import (
-    comp_loss_accuracy,
-    # set_random_seeds,
-)
+from src.trainer import train
+from src.mutate import mutate_hparams
 from src.data import get_dataloader
 from src.config import load_config
 
 import copy
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
 import json
 
 from torch.utils.tensorboard import SummaryWriter
-
-
-def train(dataloader: tuple, config: dict) -> dict:
-
-    n_epochs = config["n_epochs"]
-    learning_rate = config["hparam"]["learning_rate"]["val"]
-    weight_decay = config["hparam"]["weight_decay"]["val"]
-    stats = dict()
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    model = MLP(config=config)
-    model.to(device)
-
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-
-    trainloader, testloader = dataloader
-
-    for epoch in range(n_epochs):
-
-        for x_data, y_data in trainloader:
-
-            # get data
-            inputs, labels = x_data.to(device), y_data.to(device)
-
-            # zero the parameter gradients
-            optimizer.zero_grad()
-
-            # forward + backward + gradient descent
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-    # test_loss, test_accuracy = comp_loss_accuracy(model=model,
-    #                                               criterion=criterion,
-    #                                               dataloader=testloader,
-    #                                               device=device)
-
-    # train_loss, train_accuracy = comp_loss_accuracy(model=model,
-    #                                                 criterion=criterion,
-    #                                                 dataloader=trainloader,
-    #                                                 device=device)
-
-    test_loss = 0.0
-    train_loss = 0.0
-    test_accuracy = 0.0
-    train_accuracy = 0.0
-    stats["test_loss"] = test_loss
-    stats["train_loss"] = train_loss
-    stats["test_accuracy"] = test_accuracy
-    stats["train_accuracy"] = train_accuracy
-
-    return stats
 
 
 def main():
@@ -83,6 +19,7 @@ def main():
     hparam_path = "hparams.yml"
 
     base_config = load_config(config_path=config_path, hparam_path=hparam_path)
+    print(json.dumps(base_config, indent=4))
 
     n_agents = base_config["n_agents"]
     n_generations = base_config["n_generations"]
@@ -117,7 +54,7 @@ def main():
         # Get the best agent of current iteration
         best_agent_idx = np.argmin(test_losses)
         best_config = configs[best_agent_idx]
-        configs = [mutate_config(config=best_config) for _ in range(n_agents)]
+        configs = [mutate_hparams(config=best_config) for _ in range(n_agents)]
 
         # Write current values of hyperparameters to Tensorboard
         for hparam_name, hparam in best_config["hparam"].items():

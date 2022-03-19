@@ -9,7 +9,5 @@ This repository is work in progress.
 Currently only fully-connected neural networks (Multilayer perceptrons (MLPs)) are supported.
 
 ## TODOs
-    - Improve handling of parameter mutation with enriched config.
-    - Improve logic of parameter mutation.
     - Implement better dataloader for neuroevolution that works with subsets.
     - Only change network topology? Or also hyperparameters?
