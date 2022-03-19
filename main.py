@@ -6,7 +6,8 @@ from src.mutate import mutate_hparams
 from src.data import get_dataloader
 from src.config import load_config
 
-import copy
+from copy import deepcopy
+from datetime import datetime
 import numpy as np
 import json
 
@@ -25,10 +26,12 @@ def main():
     n_generations = base_config["n_generations"]
 
     # Use same config initially
-    configs = [copy.deepcopy(base_config) for _ in range(n_agents)]
+    configs = [deepcopy(base_config) for _ in range(n_agents)]
 
     dataset = base_config['dataset']
-    writer = SummaryWriter(comment=f"_{dataset}")
+    writer = SummaryWriter(log_dir=f"./runs/{dataset}_{datetime.now()}")
+
+    dataloader = get_dataloader(config=base_config)
 
     for i in range(n_generations):
         print(f"Iteration {i:05d}")
@@ -43,7 +46,6 @@ def main():
             # if (i+1) % increase_epochs_every_n == 0:
             #     config["n_epochs"] += 1
 
-            dataloader = get_dataloader(config=config)
             stats = train(dataloader=dataloader, config=config)
 
             train_losses.append(stats["train_loss"])
@@ -76,23 +78,26 @@ def main():
         writer.add_scalar("time_series_test_loss", test_loss, global_step=i)
         writer.add_scalar("time_series_test_accuracy", test_accuracy, global_step=i)
 
-        # Add hyperparameters and metrics to tensorboard
-        hparam_dict = dict()
-        metric_dict = dict()
+        # Add hyperparameters and metrics of the best agent to tensorboard
+        if base_config["add_hyperparameters"]:
+            hparam_dict = dict()
+            metric_dict = dict()
 
-        for hparam_name, hparam in best_config["hparam"].items():
-            if hparam_name == "n_dims_hidden":
-                for idx, val in enumerate(hparam["val"]):
-                    hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
-            else:
-                hparam_dict[f"hparam_{hparam_name}"] = hparam["val"]
+            for hparam_name, hparam in best_config["hparam"].items():
+                if hparam_name == "n_dims_hidden":
+                    for idx, val in enumerate(hparam["val"]):
+                        hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
+                else:
+                    hparam_dict[f"hparam_{hparam_name}"] = hparam["val"]
 
-        metric_dict["metric_train_loss"] = train_loss
-        metric_dict["metric_train_accuracy"] = train_accuracy
-        metric_dict["metric_test_loss"] = test_loss
-        metric_dict["metric_test_accuracy"] = test_accuracy
+            metric_dict["metric_train_loss"] = train_loss
+            metric_dict["metric_train_accuracy"] = train_accuracy
+            metric_dict["metric_test_loss"] = test_loss
+            metric_dict["metric_test_accuracy"] = test_accuracy
 
-        writer.add_hparams(hparam_dict=hparam_dict, metric_dict=metric_dict, run_name=f"gen_{i}")
+            writer.add_hparams(hparam_dict=hparam_dict,
+                               metric_dict=metric_dict,
+                               run_name=f"gen_{i}")
 
     writer.close()
 

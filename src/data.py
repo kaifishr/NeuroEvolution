@@ -10,6 +10,7 @@ from sklearn.datasets import make_blobs
 def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
     batch_size = config["hparam"]["batch_size"]["val"]
+    batch_size_test = config["batch_size_test"]
 
     avg = (0.4914, 0.4822, 0.4465)
     std = (0.2023, 0.1994, 0.2010)
@@ -50,7 +51,7 @@ def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
     subset_length = int(len(testset) * subset_ratio)
     testset = Subset(testset, range(subset_length))
 
-    testloader_config = dict(dataset=testset, batch_size=2 * batch_size, shuffle=False,
+    testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False,
                              num_workers=n_workers, pin_memory=False)
     testloader = DataLoader(**testloader_config)
 
@@ -60,6 +61,7 @@ def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
     batch_size = config["hparam"]["batch_size"]["val"]
+    batch_size_test = config["batch_size_test"]
 
     avg = (0.4914, 0.4822, 0.4465)
     std = (0.2023, 0.1994, 0.2010)
@@ -101,7 +103,7 @@ def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config:
     subset_length = int(len(testset) * subset_ratio)
     testset = Subset(testset, range(subset_length))
 
-    testloader_config = dict(dataset=testset, batch_size=2 * batch_size, shuffle=False,
+    testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False,
                              num_workers=n_workers, pin_memory=False)
 
     testloader = DataLoader(**testloader_config)
@@ -112,6 +114,7 @@ def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config:
 def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
     batch_size = config["hparam"]["batch_size"]["val"]
+    batch_size_test = config["batch_size_test"]
 
     # Fashion-MNIST
     avg = (0.2859,)
@@ -142,10 +145,10 @@ def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tu
     subset_length = int(len(trainset) * subset_ratio)
     trainset = Subset(trainset, range(subset_length))
 
-    trainloader = DataLoader(trainset,
-                             batch_size=batch_size,
-                             shuffle=True,
-                             num_workers=n_workers)
+    trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True,
+                              num_workers=n_workers, pin_memory=False)
+
+    trainloader = DataLoader(**trainloader_config)
 
     testset = torchvision.datasets.FashionMNIST(root="./data",
                                                 train=False,
@@ -155,10 +158,10 @@ def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tu
     subset_length = int(len(testset) * subset_ratio)
     testset = Subset(testset, range(subset_length))
 
-    testloader = DataLoader(testset,
-                            batch_size=2 * batch_size,
-                            shuffle=False,
-                            num_workers=n_workers)
+    testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False,
+                             num_workers=n_workers, pin_memory=False)
+
+    testloader = DataLoader(**testloader_config)
 
     return trainloader, testloader
 

@@ -16,14 +16,16 @@ subset_ratio: 0.05
 # Network topology search with genetic optimization.
 n_generations: 9999999999
 n_agents: 4
-mutation_rate: 0.5
+global_mutation_rate: 0.5
+local_mutation_rate: 0.1
 increase_epochs_every_n_epochs: -1
 
 ##########
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 0
+n_epochs: 1
+batch_size_test: 500
 
 ###############
 # Miscellaneous
@@ -32,3 +34,8 @@ use_gpu: true
 random_seed: 69
 n_workers: 1
 stats_every_n_epochs: 1
+
+#############
+# Tensorboard
+#############
+add_hyperparameters: false

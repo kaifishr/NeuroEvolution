@@ -1,13 +1,15 @@
 # NeuroEvolution
 
-A hybrid optimization algorithm that combines gradient descent for network parameter optimization and an evolutionary algorithm for network topology optimization.
+A hybrid optimization algorithm combining gradient descent for network parameter optimization 
+coupled with an evolutionary algorithm for network topology and training hyperparameter 
+optimization.
 
-This repository is work in progress.
+Work in progress.
 
 ## Networks
 
-Currently only fully-connected neural networks (Multilayer perceptrons (MLPs)) are supported.
+Currently, only fully-connected neural networks (Multilayer perceptrons (MLPs)) are supported.
 
 ## TODOs
     - Implement better dataloader for neuroevolution that works with subsets.
-    - Only change network topology? Or also hyperparameters?
+    - Split configs entirely.
