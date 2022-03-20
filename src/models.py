@@ -1,6 +1,10 @@
+"""Module holds class definition of fully-connected neural network.
+
+Class allows to build multilayer perceptron of arbitrary depth and width.
+
+"""
 import torch
 import torch.nn as nn
-
 from functools import reduce
 
 

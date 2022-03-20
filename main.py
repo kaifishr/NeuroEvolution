@@ -16,8 +16,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 def main():
 
-    config_path = "config.yml"
-    hparam_path = "hparams.yml"
+    config_path = "config/config.yml"
+    hparam_path = "config/hparams.yml"
 
     base_config = load_config(config_path=config_path, hparam_path=hparam_path)
     print(json.dumps(base_config, indent=4))

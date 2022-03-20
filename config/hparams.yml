@@ -44,7 +44,7 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "vector"  # list, array?
-    val: 64
+    val: 8
     val_min: 4
     val_max: 128
 
