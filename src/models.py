@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from functools import reduce
+
 
 class MLP(nn.Module):
     """Fully connected neural network.
@@ -15,36 +17,13 @@ class MLP(nn.Module):
     def __init__(self, config: dict) -> None:
         super().__init__()
 
-        self.dropout_rate = config["hparam"]["dropout_rate"]["val"]
-        self.n_dims_hidden = config["hparam"]["n_dims_hidden"]["val"]
-        self.n_layers_hidden = config["hparam"]["n_layers_hidden"]["val"]
+        self._dropout_rate = config["hparam"]["dropout_rate"]["val"]
+        self._n_dims_hidden = config["hparam"]["n_dims_hidden"]["val"]
         self._dataset = config["dataset"]
+        self._input_shape = config["input_shape"]
+        self._n_dims_out = config["n_classes"]
 
-        # todo: Remove from class. Pass information via config.
-        if self._dataset == "blobs":
-            self.IMAGE_WIDTH = 1
-            self.IMAGE_HEIGHT = 1
-            self.COLOR_CHANNELS = 2
-            self.n_dims_out = 64
-        elif self._dataset == "fashion_mnist":
-            self.IMAGE_WIDTH = 28
-            self.IMAGE_HEIGHT = 28
-            self.COLOR_CHANNELS = 1
-            self.n_dims_out = 10
-        elif self._dataset == "cifar10":
-            self.IMAGE_WIDTH = 32
-            self.IMAGE_HEIGHT = 32
-            self.COLOR_CHANNELS = 3
-            self.n_dims_out = 10
-        elif self._dataset == "cifar100":
-            self.IMAGE_WIDTH = 32
-            self.IMAGE_HEIGHT = 32
-            self.COLOR_CHANNELS = 3
-            self.n_dims_out = 100
-        else:
-            raise NotImplementedError(f"Dataset '{self._dataset}' not defined.")
-
-        self.n_dims_in = self.IMAGE_HEIGHT * self.IMAGE_WIDTH * self.COLOR_CHANNELS
+        self.n_dims_in = reduce(lambda x, y: x*y, self._input_shape)
 
         self.layers = list()
         self._make_layers()
@@ -55,18 +34,18 @@ class MLP(nn.Module):
 
     def _make_layers(self) -> None:
         # Input layer
-        self.layers.append(nn.Linear(self.n_dims_in, self.n_dims_hidden[0]))
+        self.layers.append(nn.Linear(self.n_dims_in, self._n_dims_hidden[0]))
         self.layers.append(nn.Tanh())
-        self.layers.append(nn.Dropout(p=self.dropout_rate))
+        self.layers.append(nn.Dropout(p=self._dropout_rate))
 
         # Hidden layer
-        for n_dims_in, n_dims_out in zip(self.n_dims_hidden[:-1], self.n_dims_hidden[1:]):
+        for n_dims_in, n_dims_out in zip(self._n_dims_hidden[:-1], self._n_dims_hidden[1:]):
             self.layers.append(nn.Linear(n_dims_in, n_dims_out))
             self.layers.append(nn.Tanh())
-            self.layers.append(nn.Dropout(p=self.dropout_rate))
+            self.layers.append(nn.Dropout(p=self._dropout_rate))
 
         # Output layer
-        self.layers.append(nn.Linear(self.n_dims_hidden[-1], self.n_dims_out))
+        self.layers.append(nn.Linear(self._n_dims_hidden[-1], self._n_dims_out))
 
     @torch.no_grad()
     def _init_parameters(self) -> None:

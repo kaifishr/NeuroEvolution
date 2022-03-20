@@ -7,6 +7,16 @@
 ######
 # str: blobs, mnist, fashion_mnist, cifar10, cifar100
 dataset: "fashion_mnist"
+input_shape: [1, 28, 28]
+n_classes: 10
+#
+# dataset: "cifar10"
+# input_shape: [3, 32, 32]
+# n_classes: 10
+#
+# dataset: "blobs"
+# input_shape: [2, 1, 1]
+# n_classes: 64
 # float: Use subset of dataset: float (0, 1]
 subset_ratio: 0.05
 
