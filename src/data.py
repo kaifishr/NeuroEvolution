@@ -1,3 +1,6 @@
+"""Module provides methods for datasets and data loaders.
+"""
+
 import math
 import random
 import numpy as np
@@ -6,6 +9,58 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader, Subset
 from sklearn.datasets import make_blobs
+
+
+class RandomSubDataset(Dataset):
+    """Class allows to iterate through random subset of original dataset in every epoch.
+
+    The intention behind this class is to speed up genetic optimization
+    by using every epoch only a smaller subset of the original dataset.
+
+    Todo:
+        * better just map indices to random data subset instead of creating a new dataset
+          {0: 32, 1: 20, 2: 59, ...}
+
+    """
+
+    def __init__(self, dataset: torch.tensor, targets: torch.tensor, subset_length: int):
+
+        super().__init__()
+
+        self.data_pool = {"x": dataset, "y": targets}
+        self.subset_length = subset_length
+
+        self.data = None
+        self.targets = None
+        self.counter = 0
+
+    def _random_subset(self) -> None:
+        random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
+        self.data = self.data_pool["x"][random_indices]
+        self.targets = self.data_pool["y"][random_indices]
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+    def __getitem__(self, index: int) -> tuple:
+
+        self.counter += 1
+        if self.counter > len(self.data_pool["x"]):
+            self._random_subset()
+
+        img, target = self.data[index], int(self.targets[index])
+
+        # doing this so that it is consistent with all other datasets
+        # to return a PIL Image
+        # img = Image.fromarray(img.numpy(), mode='L')
+
+        # if self.transform is not None:
+        #     img = self.transform(img)
+
+        # if self.target_transform is not None:
+        #     target = self.target_transform(target)
+
+        return img, target
 
 
 def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
@@ -110,50 +165,6 @@ def get_cifar100(batch_size: int, n_workers: int, subset_ratio: float, **config:
     testloader = DataLoader(**testloader_config)
 
     return trainloader, testloader
-
-
-class RandomSubDataset(Dataset):
-
-    def __init__(self, dataset: torch.tensor, targets: torch.tensor, subset_length: int):
-
-        super().__init__()
-
-        self.data_pool = {"x": dataset, "y": targets}
-        self.subset_length = subset_length
-
-        self.data = None
-        self.targets = None
-        self.counter = 0
-
-    def _random_subset(self) -> None:
-        # todo: better just map indices to random data subset instead of creating a new dataset
-        #       {0: 32, 1: 20, 2: 59, ...}
-        random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
-        self.data = self.data_pool["x"][random_indices]
-        self.targets = self.data_pool["y"][random_indices]
-
-    def __len__(self) -> int:
-        return len(self.data)
-
-    def __getitem__(self, index: int) -> tuple:
-
-        self.counter += 1
-        if self.counter > len(self.data_pool["x"]):
-            self._random_subset()
-
-        img, target = self.data[index], int(self.targets[index])
-
-        # doing this so that it is consistent with all other datasets
-        # to return a PIL Image
-        # img = Image.fromarray(img.numpy(), mode='L')
-
-        # if self.transform is not None:
-        #     img = self.transform(img)
-
-        # if self.target_transform is not None:
-        #     target = self.target_transform(target)
-
-        return img, target
 
 
 def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
