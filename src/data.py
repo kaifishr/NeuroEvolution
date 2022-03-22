@@ -34,13 +34,19 @@ class RandomSubDataset(Dataset):
         self.targets = None
         self.counter = 0
 
-    def _random_subset(self) -> None:
+    def _random_subset_v1(self) -> None:
         random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
         self.data = self.data_pool["x"][random_indices]
         self.targets = self.data_pool["y"][random_indices]
 
     def __len__(self) -> int:
         return len(self.data)
+
+    # def _random_subset_v2(self) -> None:
+    #     random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
+
+    # def __len__(self) -> int:
+    #     return self.subset_length
 
     def __getitem__(self, index: int) -> tuple:
 
@@ -50,15 +56,8 @@ class RandomSubDataset(Dataset):
 
         img, target = self.data[index], int(self.targets[index])
 
-        # doing this so that it is consistent with all other datasets
-        # to return a PIL Image
-        # img = Image.fromarray(img.numpy(), mode='L')
-
-        # if self.transform is not None:
-        #     img = self.transform(img)
-
-        # if self.target_transform is not None:
-        #     target = self.target_transform(target)
+        if self.transform is not None:
+            img = self.transform(img)
 
         return img, target
 

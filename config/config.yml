@@ -26,8 +26,8 @@ subset_ratio: 0.1
 # Network topology search with genetic optimization.
 n_generations: 9999999999
 n_agents: 4
-global_mutation_rate: 1.0
-local_mutation_rate: 0.2
+global_mutation_rate: 0.5
+local_mutation_rate: 0.01
 increase_epochs_every_n_epochs: -1
 
 ##########

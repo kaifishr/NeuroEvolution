@@ -15,7 +15,7 @@ hparam:
     val_max: 1.0e-2
 
   batch_size:
-    mutate: true
+    mutate: false
     dtype: "int"
     ptype: "scalar"
     val: 64
@@ -23,7 +23,7 @@ hparam:
     val_max: 128
 
   dropout_rate:
-    mutate: true
+    mutate: false
     dtype: "float"
     ptype: "scalar"
     val: 0.0
@@ -31,7 +31,7 @@ hparam:
     val_max: 0.5
 
   weight_decay:
-    mutate: true
+    mutate: false
     dtype: "float"
     ptype: "scalar"
     val: 1.0e-06
@@ -44,7 +44,7 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "vector"  # list, array?
-    val: 8
+    val: 128
     val_min: 4
     val_max: 128
 
@@ -52,6 +52,6 @@ hparam:
     mutate: false
     dtype: "int"
     ptype: "scalar"
-    val: 5
+    val: 6
     val_min: 1
     val_max: 8
