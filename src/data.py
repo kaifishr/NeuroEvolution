@@ -23,41 +23,53 @@ class RandomSubDataset(Dataset):
 
     """
 
-    def __init__(self, dataset: torch.tensor, targets: torch.tensor, subset_length: int):
+    def __init__(self, dataset: Dataset, subset_ratio: float, transform=None):
 
         super().__init__()
 
-        self.data_pool = {"x": dataset, "y": targets}
-        self.subset_length = subset_length
+        self.dataset = dataset
+        self.data = dataset.data.numpy()
+        self.targets = dataset.targets.numpy()
 
-        self.data = None
-        self.targets = None
+        self.subset_length = int(len(self.data) * subset_ratio)
+
         self.counter = 0
+        self._random_subset()
 
-    def _random_subset_v1(self) -> None:
-        random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
-        self.data = self.data_pool["x"][random_indices]
-        self.targets = self.data_pool["y"][random_indices]
+        # self.transforms = torch.nn.Sequential(
+        #     transforms.Normalize((0.5,), (0.5,)),
+        # )
+        # self.transforms = torch.jit.script(self.transforms)
+
+    # def _random_subset(self) -> None:
+    #     random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
+    #     self.data = self.data_pool["x"][random_indices]
+    #     self.targets = self.data_pool["y"][random_indices]
+    # def __len__(self) -> int:
+    #     return len(self.data)
+
+    def _random_subset(self) -> None:
+        self.rand_map = random.sample(list(range(len(self.data))), self.subset_length)
 
     def __len__(self) -> int:
-        return len(self.data)
-
-    # def _random_subset_v2(self) -> None:
-    #     random_indices = random.sample(list(range(len(self.data_pool["x"]))), self.subset_length)
-
-    # def __len__(self) -> int:
-    #     return self.subset_length
+        return self.subset_length
 
     def __getitem__(self, index: int) -> tuple:
 
         self.counter += 1
-        if self.counter > len(self.data_pool["x"]):
+        if self.counter > self.subset_length:
             self._random_subset()
 
-        img, target = self.data[index], int(self.targets[index])
+        # img, target = self.data[index], int(self.targets[index])
+        rand_index = self.rand_map[index]
+        # img, target = self.data[rand_index].float().view(1, 1, 28, 28), int(self.targets[rand_index])
+        img, target = self.data[rand_index], int(self.targets[rand_index])
 
-        if self.transform is not None:
-            img = self.transform(img)
+        # print(self.transforms(img))
+        # print(target)
+        # exit()
+        if self.dataset.transform is not None:
+            img = self.dataset.transform(img)
 
         return img, target
 
@@ -192,17 +204,40 @@ def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tu
         ]
     )
 
+    # trainset = torchvision.datasets.FashionMNIST(root="./data",
+    #                                              train=True,
+    #                                              download=True,
+    #                                              transform=transform_train)
+
+    # subset_length = int(len(trainset) * subset_ratio)
+    # trainset = Subset(trainset, range(subset_length))
+
+    # trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True,
+    #                           num_workers=n_workers, pin_memory=False)
+
+    # trainloader = DataLoader(**trainloader_config)
+
+    # testset = torchvision.datasets.FashionMNIST(root="./data",
+    #                                             train=False,
+    #                                             download=True,
+    #                                             transform=transform_test)
+
+    # subset_length = int(len(testset) * subset_ratio)
+    # testset = Subset(testset, range(subset_length))
+
+    # testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False,
+    #                          num_workers=n_workers, pin_memory=False)
+
+    # testloader = DataLoader(**testloader_config)
+
+    ##############
     trainset = torchvision.datasets.FashionMNIST(root="./data",
                                                  train=True,
                                                  download=True,
                                                  transform=transform_train)
 
-    subset_length = int(len(trainset) * subset_ratio)
-    trainset = Subset(trainset, range(subset_length))
-
-    trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True,
-                              num_workers=n_workers, pin_memory=False)
-
+    trainset = RandomSubDataset(dataset=trainset, subset_ratio=subset_ratio, transform=transform_train)
+    trainloader_config = dict(dataset=trainset, batch_size=batch_size, shuffle=True, num_workers=n_workers, pin_memory=False)
     trainloader = DataLoader(**trainloader_config)
 
     testset = torchvision.datasets.FashionMNIST(root="./data",
@@ -210,13 +245,11 @@ def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tu
                                                 download=True,
                                                 transform=transform_test)
 
-    subset_length = int(len(testset) * subset_ratio)
-    testset = Subset(testset, range(subset_length))
-
-    testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False,
-                             num_workers=n_workers, pin_memory=False)
+    testset = RandomSubDataset(dataset=testset, subset_ratio=subset_ratio, transform=transform_test)
+    testloader_config = dict(dataset=testset, batch_size=batch_size_test, shuffle=False, num_workers=n_workers, pin_memory=False)
 
     testloader = DataLoader(**testloader_config)
+    ##############
 
     return trainloader, testloader
 

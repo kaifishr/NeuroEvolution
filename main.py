@@ -45,6 +45,10 @@ def main():
         for config in configs:
             # if (i+1) % increase_epochs_every_n == 0:
             #     config["n_epochs"] += 1
+            # if (i+1) % 1 == 0:
+            #     config["local_mutation_rate"] -= 0.01
+            #     if config["local_mutation_rate"] < 0.0:
+            #         config["local_mutation_rate"] = 0.0
 
             stats = train(dataloader=dataloader, config=config)
 

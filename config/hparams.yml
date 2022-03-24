@@ -7,35 +7,35 @@ hparam:
   # Mutable hyperparameters for network optimization with gradient descent.
 
   learning_rate:
-    mutate: false
+    mutate: true
     dtype: "float"
     ptype: "scalar"
-    val: 3.0e-4
-    val_min: 1.0e-5
+    val: 1.0e-3
+    val_min: 1.0e-6
     val_max: 1.0e-2
 
   batch_size:
-    mutate: false
+    mutate: true
     dtype: "int"
     ptype: "scalar"
-    val: 64
+    val: 128
     val_min: 1
     val_max: 128
 
   dropout_rate:
-    mutate: false
+    mutate: true
     dtype: "float"
     ptype: "scalar"
-    val: 0.0
+    val: 0.1
     val_min: 0.0
     val_max: 0.5
 
   weight_decay:
-    mutate: false
+    mutate: true
     dtype: "float"
     ptype: "scalar"
-    val: 1.0e-06
-    val_min: 1.0e-6
+    val: 1.0e-5
+    val_min: 1.0e-8
     val_max: 1.0e-2
 
   # Mutable hyperparameters for network topology optimization.
@@ -44,7 +44,7 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "vector"  # list, array?
-    val: 128
+    val: 32
     val_min: 4
     val_max: 128
 
@@ -52,6 +52,6 @@ hparam:
     mutate: false
     dtype: "int"
     ptype: "scalar"
-    val: 6
+    val: 8
     val_min: 1
     val_max: 8

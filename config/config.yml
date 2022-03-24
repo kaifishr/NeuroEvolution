@@ -18,7 +18,7 @@ n_classes: 10
 # input_shape: [2, 1, 1]
 # n_classes: 64
 # float: Use subset of dataset: float (0, 1]
-subset_ratio: 0.1
+subset_ratio: 0.01
 
 ###########
 # Evolution
@@ -27,7 +27,7 @@ subset_ratio: 0.1
 n_generations: 9999999999
 n_agents: 4
 global_mutation_rate: 0.5
-local_mutation_rate: 0.01
+local_mutation_rate: 0.1
 increase_epochs_every_n_epochs: -1
 
 ##########
@@ -42,7 +42,7 @@ batch_size_test: 500
 ###############
 use_gpu: true
 random_seed: 69
-n_workers: 1
+n_workers: 0
 stats_every_n_epochs: 1
 
 #############
