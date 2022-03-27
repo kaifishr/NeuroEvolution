@@ -41,15 +41,15 @@ hparam:
   # Mutable hyperparameters for network topology optimization.
 
   n_dims_hidden:
-    mutate: false
+    mutate: true
     dtype: "int"
     ptype: "vector"  # list, array?
     val: 64
     val_min: 4
-    val_max: 128
+    val_max: 256
 
   n_layers_hidden:
-    mutate: true
+    mutate: false
     dtype: "int"
     ptype: "scalar"
     val: 8

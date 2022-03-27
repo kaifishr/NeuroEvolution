@@ -1,3 +1,5 @@
+import json
+import torch
 import yaml
 
 
@@ -42,5 +44,12 @@ def load_config(config_path: str, hparam_path: str) -> dict:
     n_dims_hidden = configuration["hparam"]["n_dims_hidden"]["val"]
     n_layers_hidden = configuration["hparam"]["n_layers_hidden"]["val"]
     configuration["hparam"]["n_dims_hidden"]["val"] = n_layers_hidden * [n_dims_hidden]
+
+    # Print config to console
+    print(json.dumps(configuration, indent=4))
+
+    # Add device to config
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    configuration["device"] = device
 
     return configuration

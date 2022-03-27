@@ -11,12 +11,12 @@ import torch.optim as optim
 
 def train(dataloader: tuple, config: dict) -> dict:
 
+    device = config["device"]
     n_epochs = config["n_epochs"]
     learning_rate = config["hparam"]["learning_rate"]["val"]
     weight_decay = config["hparam"]["weight_decay"]["val"]
-    stats = dict()
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model = MLP(config=config)
     model.to(device)
@@ -30,16 +30,20 @@ def train(dataloader: tuple, config: dict) -> dict:
 
         for x_data, y_data in trainloader:
 
-            # get data
+            # Move data to device.
             inputs, labels = x_data.to(device), y_data.to(device)
 
-            # zero the parameter gradients
+            # Zero network parameters.
             optimizer.zero_grad()
 
-            # forward + backward + gradient descent
+            # Forward pass.
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+
+            # Backward pass.
             loss.backward()
+
+            # Gradient descent.
             optimizer.step()
 
     test_loss, test_accuracy = comp_loss_accuracy(model=model,
@@ -52,6 +56,7 @@ def train(dataloader: tuple, config: dict) -> dict:
                                                     dataloader=trainloader,
                                                     device=device)
 
+    stats = dict()
     stats["test_loss"] = test_loss
     stats["train_loss"] = train_loss
     stats["test_accuracy"] = test_accuracy

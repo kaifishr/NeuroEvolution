@@ -17,9 +17,9 @@ def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
     std = (0.2023, 0.1994, 0.2010)
 
     train_transforms = [
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(degrees=10),
-        transforms.RandomCrop(32, padding=5),
+        # transforms.RandomHorizontalFlip(),
+        # transforms.RandomRotation(degrees=10),
+        # transforms.RandomCrop(32, padding=5),
         transforms.ToTensor(),
         transforms.Normalize(avg, std)
     ]
@@ -112,7 +112,7 @@ def get_dataloader(dataset, **config: dict) -> tuple[DataLoader, DataLoader]:
         **config:
 
     Returns:
-        Training and test dataloaders.
+        Training and test data loaders.
 
     """
     if dataset == "cifar10":

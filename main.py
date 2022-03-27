@@ -1,4 +1,7 @@
-"""Evolution of neural networks with genetic algorithms.
+"""Evolution of neural networks with genetic optimization.
+
+Todo:
+    * ...
 
 """
 from src.trainer import train
@@ -9,7 +12,7 @@ from src.config import load_config
 from copy import deepcopy
 from datetime import datetime
 import numpy as np
-import json
+import time
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -20,7 +23,6 @@ def main():
     hparam_path = "config/hparams.yml"
 
     base_config = load_config(config_path=config_path, hparam_path=hparam_path)
-    print(json.dumps(base_config, indent=4))
 
     n_agents = base_config["n_agents"]
     n_generations = base_config["n_generations"]
@@ -28,38 +30,48 @@ def main():
     # Use same config initially
     configs = [deepcopy(base_config) for _ in range(n_agents)]
 
+    # Tensorboard writer
     dataset = base_config['dataset']
     writer = SummaryWriter(log_dir=f"./runs/{dataset}_{datetime.now()}")
 
+    # Get data
     dataloader = get_dataloader(**base_config)
 
+    # Create dictionary for running statistics
+    stats_name = ("train_loss", "train_accuracy", "test_loss", "test_accuracy")
+    stats_dict = {name: [] for name in stats_name}
+
+    # Main optimization loop
     for i in range(n_generations):
+        t0 = time.time()
         print(f"Iteration {i:05d}")
 
-        # Test agents of current iteration
-        train_losses = list()
-        train_accuracies = list()
-        test_losses = list()
-        test_accuracies = list()
+        # Reset all values in stats dictionary
+        for k in stats_dict.keys():
+            stats_dict[k] = list()
 
+        # Loop over all agents
         for config in configs:
-
-            if (i+1) % 2000 == 0:
-                config["n_epochs"] += 1
 
             stats = train(dataloader=dataloader, config=config)
 
-            train_losses.append(stats["train_loss"])
-            train_accuracies.append(stats["train_accuracy"])
-            test_losses.append(stats["test_loss"])
-            test_accuracies.append(stats["test_accuracy"])
+            for key, value in stats.items():
+                stats_dict[key].append(value)
 
         # Get the best agent of current iteration
-        best_agent_idx = np.argmin(train_losses)
+        best_agent_idx = np.argmin(stats_dict["train_loss"])
         best_config = configs[best_agent_idx]
         configs = [mutate_hparams(config=best_config) for _ in range(n_agents)]
 
-        # Write current values of hyperparameters to Tensorboard
+        # Track average time per generation
+        time_per_generation = (time.time()-t0)/n_agents
+        writer.add_scalar("time_series/time_per_generation", time_per_generation, global_step=i)
+
+        # Add scalars to Tensorboard
+        for key, value in stats_dict.items():
+            writer.add_scalar(f"time_series/{key}", value[best_agent_idx], global_step=i)
+
+        # Add hyperparameters to Tensorboard
         for hparam_name, hparam in best_config["hparam"].items():
             if hparam_name == "n_dims_hidden":
                 for idx, val in enumerate(hparam["val"]):
@@ -67,17 +79,6 @@ def main():
                                       val, global_step=i)
             else:
                 writer.add_scalar(f"time_series_{hparam_name}", hparam["val"], global_step=i)
-
-        # Add scalars to tensorboard
-        train_loss = train_losses[best_agent_idx]
-        train_accuracy = train_accuracies[best_agent_idx]
-        test_loss = test_losses[best_agent_idx]
-        test_accuracy = test_accuracies[best_agent_idx]
-
-        writer.add_scalar("time_series_train_loss", train_loss, global_step=i)
-        writer.add_scalar("time_series_train_accuracy", train_accuracy, global_step=i)
-        writer.add_scalar("time_series_test_loss", test_loss, global_step=i)
-        writer.add_scalar("time_series_test_accuracy", test_accuracy, global_step=i)
 
         # Add hyperparameters and metrics of the best agent to tensorboard
         if base_config["add_hyperparameters"]:
@@ -91,14 +92,10 @@ def main():
                 else:
                     hparam_dict[f"hparam_{hparam_name}"] = hparam["val"]
 
-            metric_dict["metric_train_loss"] = train_loss
-            metric_dict["metric_train_accuracy"] = train_accuracy
-            metric_dict["metric_test_loss"] = test_loss
-            metric_dict["metric_test_accuracy"] = test_accuracy
+            for key, value in stats_dict.items():
+                writer.add_scalar(f"metric/{key}", value[best_agent_idx], global_step=i)
 
-            writer.add_hparams(hparam_dict=hparam_dict,
-                               metric_dict=metric_dict,
-                               run_name=f"gen_{i}")
+            writer.add_hparams(hparam_dict=hparam_dict, metric_dict=metric_dict, run_name=f"{i}")
 
     writer.close()
 
