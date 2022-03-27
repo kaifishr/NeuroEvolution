@@ -31,7 +31,7 @@ def main():
     dataset = base_config['dataset']
     writer = SummaryWriter(log_dir=f"./runs/{dataset}_{datetime.now()}")
 
-    dataloader = get_dataloader(config=base_config)
+    dataloader = get_dataloader(**base_config)
 
     for i in range(n_generations):
         print(f"Iteration {i:05d}")
@@ -43,12 +43,9 @@ def main():
         test_accuracies = list()
 
         for config in configs:
-            # if (i+1) % increase_epochs_every_n == 0:
-            #     config["n_epochs"] += 1
-            # if (i+1) % 1 == 0:
-            #     config["local_mutation_rate"] -= 0.01
-            #     if config["local_mutation_rate"] < 0.0:
-            #         config["local_mutation_rate"] = 0.0
+
+            if (i+1) % 2000 == 0:
+                config["n_epochs"] += 1
 
             stats = train(dataloader=dataloader, config=config)
 
@@ -58,7 +55,7 @@ def main():
             test_accuracies.append(stats["test_accuracy"])
 
         # Get the best agent of current iteration
-        best_agent_idx = np.argmin(test_losses)
+        best_agent_idx = np.argmin(train_losses)
         best_config = configs[best_agent_idx]
         configs = [mutate_hparams(config=best_config) for _ in range(n_agents)]
 
