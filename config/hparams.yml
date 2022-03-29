@@ -7,10 +7,10 @@ hparam:
   # Mutable hyperparameters for network optimization with gradient descent.
 
   learning_rate:
-    mutate: false
+    mutate: true
     dtype: "float"
     ptype: "scalar"
-    val: 1.0e-3
+    val: 1.0e-4
     val_min: 1.0e-6
     val_max: 1.0e-2
 
@@ -18,7 +18,7 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "scalar"
-    val: 128
+    val: 4
     val_min: 1
     val_max: 128
 
@@ -52,6 +52,6 @@ hparam:
     mutate: false
     dtype: "int"
     ptype: "scalar"
-    val: 8
+    val: 6
     val_min: 1
     val_max: 8

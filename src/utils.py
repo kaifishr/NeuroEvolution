@@ -1,28 +1,6 @@
 import numpy as np
 import random
 import torch
-import yaml
-import copy
-import math
-# from scipy.stats import loguniform
-
-
-# def get_hparams() -> list:
-#     """Lookup table with names of hyperparameters.
-#
-#     Returns:
-#         List of hyperparameters.
-#
-#     """
-#     hparams = [
-#         "batch_size",
-#         "learning_rate",
-#         "dropout_rate",
-#         "weight_decay",
-#         "n_dims_hidden",
-#         "n_layers_hidden",
-#     ]
-#     return hparams
 
 
 @torch.no_grad()

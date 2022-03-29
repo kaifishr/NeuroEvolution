@@ -4,7 +4,6 @@
 from src.models import MLP
 from src.utils import comp_loss_accuracy
 
-import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -15,8 +14,6 @@ def train(dataloader: tuple, config: dict) -> dict:
     n_epochs = config["n_epochs"]
     learning_rate = config["hparam"]["learning_rate"]["val"]
     weight_decay = config["hparam"]["weight_decay"]["val"]
-
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model = MLP(config=config)
     model.to(device)

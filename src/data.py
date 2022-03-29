@@ -66,8 +66,8 @@ def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tu
 
     # Define transforms for dataset
     train_transforms = [
-        transforms.RandomRotation(degrees=10),
-        transforms.RandomCrop(28, padding=2),
+        # transforms.RandomRotation(degrees=10),
+        # transforms.RandomCrop(28, padding=2),
         transforms.ToTensor(),
         transforms.Normalize(avg, std)
     ]

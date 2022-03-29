@@ -1,7 +1,7 @@
 """Evolution of neural networks with genetic optimization.
 
 Todo:
-    * ...
+    * add mutation operator with discrete step size
 
 """
 from src.trainer import train
@@ -75,10 +75,10 @@ def main():
         for hparam_name, hparam in best_config["hparam"].items():
             if hparam_name == "n_dims_hidden":
                 for idx, val in enumerate(hparam["val"]):
-                    writer.add_scalar(f"time_series_layer_{idx}_{hparam_name}",
+                    writer.add_scalar(f"time_series/network/layer_{idx}_{hparam_name}",
                                       val, global_step=i)
             else:
-                writer.add_scalar(f"time_series_{hparam_name}", hparam["val"], global_step=i)
+                writer.add_scalar(f"time_series/{hparam_name}", hparam["val"], global_step=i)
 
         # Add hyperparameters and metrics of the best agent to tensorboard
         if base_config["add_hyperparameters"]:
@@ -90,7 +90,7 @@ def main():
                     for idx, val in enumerate(hparam["val"]):
                         hparam_dict[f"hparam_layer_{idx}_{hparam_name}"] = val
                 else:
-                    hparam_dict[f"hparam_{hparam_name}"] = hparam["val"]
+                    hparam_dict[f"hparam/{hparam_name}"] = hparam["val"]
 
             for key, value in stats_dict.items():
                 writer.add_scalar(f"metric/{key}", value[best_agent_idx], global_step=i)
