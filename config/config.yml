@@ -23,16 +23,17 @@ subset_ratio: 0.01
 # Network topology search with genetic optimization.
 n_generations: 9999999999
 n_agents: 4
-# mutation_operator: -1
-global_mutation_rate: 0.5
-local_mutation_rate: 0.2
+# Options: "discrete", "proportional"
+mutation_operator: "discrete"
+global_mutation_rate: 0.8
+local_mutation_rate: 0.0
 increase_epochs_every_n_epochs: 1000
 
 ##########
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 5
+n_epochs: 2
 batch_size_test: 500
 
 ###############

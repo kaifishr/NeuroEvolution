@@ -13,6 +13,7 @@ hparam:
     val: 1.0e-4
     val_min: 1.0e-6
     val_max: 1.0e-2
+    step_size: 1.0e-5
 
   batch_size:
     mutate: true
@@ -21,6 +22,7 @@ hparam:
     val: 4
     val_min: 1
     val_max: 128
+    step_size: 1
 
   dropout_rate:
     mutate: true
@@ -29,6 +31,7 @@ hparam:
     val: 0.5
     val_min: 0.0
     val_max: 0.5
+    step_size: 0.001
 
   weight_decay:
     mutate: true
@@ -37,6 +40,7 @@ hparam:
     val: 1.0e-5
     val_min: 1.0e-8
     val_max: 1.0e-2
+    step_size: 1.0e-6
 
   # Mutable hyperparameters for network topology optimization.
 
@@ -44,14 +48,16 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "vector"  # list, array?
-    val: 64
+    val: 16
     val_min: 4
     val_max: 256
+    step_size: 1
 
   n_layers_hidden:
     mutate: false
     dtype: "int"
     ptype: "scalar"
-    val: 6
+    val: 4
     val_min: 1
     val_max: 8
+    step_size: 1

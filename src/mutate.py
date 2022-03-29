@@ -18,7 +18,6 @@ def mutate_hparams(config: dict) -> dict:
     config = deepcopy(config)
 
     global_mutation_rate = config["global_mutation_rate"]
-    local_mutation_rate = config["local_mutation_rate"]
 
     # Mutate parameters
     for hparam_name, hparam in config["hparam"].items():
@@ -29,16 +28,18 @@ def mutate_hparams(config: dict) -> dict:
 
                 if hparam["ptype"] == "scalar":
                     value = hparam["val"]
+                    dtype = hparam["dtype"]
 
-                    value = mutate_value(value, local_mutation_rate, **hparam)
+                    value = mutate_value(value, dtype, config, hparam)
 
                     hparam["val"] = value
 
                 elif hparam["ptype"] == "vector":
+                    dtype = hparam["dtype"]
 
                     val = list()
                     for value in hparam["val"]:
-                        value = mutate_value(value, local_mutation_rate, **hparam)
+                        value = mutate_value(value, dtype, config, hparam)
                         val.append(value)
 
                     hparam["val"] = val
@@ -49,41 +50,67 @@ def mutate_hparams(config: dict) -> dict:
     return config
 
 
-def mutate_value(value, local_mutation_rate, dtype, **hparam) -> Union[int, float]:
+def mutate_value(value: Union[float, int], dtype: str, config: dict, hparam) -> Union[float, int]:
     """Mutates single value of hyperparameter.
 
     Args:
-        value:
-        local_mutation_rate:
-        dtype:
-        **hparam:
+        value: Scalar value of type float or int.
+        dtype: Datatype.
+        config: Dictionary holding configuration.
+        hparam:
 
     Returns:
         Mutated value.
 
     """
+    local_mutation_rate = config["local_mutation_rate"]
+    mutation_operator = config["mutation_operator"]
+
     # Compute step size based on values magnitude
-    eta = comp_step_size(value, local_mutation_rate, dtype)
+    if mutation_operator == "proportional":
+        eta = comp_proportional_step_size(value, local_mutation_rate, dtype)
+    elif mutation_operator == "discrete":
+        eta = comp_discrete_step_size(hparam)
+    else:
+        raise NotImplementedError(f"Mutation operator '{mutation_operator}' not implemented.")
 
     # Update value
-    value = value + eta
+    value += eta
 
     # Ensure value is within desired bounds
     value = np.clip(value, hparam["val_min"], hparam["val_max"])
 
     # Cast to correct datatype
     if dtype == "int":
-        val = int(value)
+        return int(value)
     elif dtype == "float":
-        val = float(value)
+        return float(value)
     else:
         raise NotImplementedError(f"'Type' must be 'int' or 'float', got {dtype = } instead.")
 
-    return val
+
+def comp_discrete_step_size(hparam: dict) -> Union[int, float]:
+    """Computes discrete step size.
+
+    Args:
+        hparam: Configuration for hyperparameter.
+
+    Returns:
+        Step size for value.
+
+    """
+    dtype = hparam["dtype"]
+    step_size = hparam["step_size"]
+
+    eta = step_size
+    if dtype == "float":
+        eta = step_size * random.random()
+
+    return rand_sign() * eta
 
 
-def comp_step_size(value, local_mutation_rate, dtype) -> Union[int, float]:
-    """Computes step size.
+def comp_proportional_step_size(value, local_mutation_rate, dtype) -> Union[int, float]:
+    """Computes step size proportional to value.
 
     Args:
         value:
@@ -99,7 +126,7 @@ def comp_step_size(value, local_mutation_rate, dtype) -> Union[int, float]:
 
     # Ensure change of parameter
     if dtype == "int":
-        eta = eta if eta > 1 else 1
+        eta = eta if eta >= 1 else 1
 
     return rand_sign() * eta
 

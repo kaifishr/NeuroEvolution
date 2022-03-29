@@ -1,8 +1,5 @@
 """Evolution of neural networks with genetic optimization.
 
-Todo:
-    * add mutation operator with discrete step size
-
 """
 from src.trainer import train
 from src.mutate import mutate_hparams
