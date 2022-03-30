@@ -15,7 +15,7 @@ n_classes: 10
 # n_classes: 10
 #
 # float: Use subset of dataset: float (0.0, 1.0]
-subset_ratio: 0.01
+subset_ratio: 0.02
 
 ###########
 # Evolution
@@ -25,7 +25,7 @@ n_generations: 9999999999
 n_agents: 4
 # Options: "discrete", "proportional"
 mutation_operator: "discrete"
-global_mutation_rate: 0.8
+global_mutation_rate: 0.5
 local_mutation_rate: 0.0
 increase_epochs_every_n_epochs: 1000
 
@@ -33,7 +33,7 @@ increase_epochs_every_n_epochs: 1000
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 2
+n_epochs: 4
 batch_size_test: 500
 
 ###############

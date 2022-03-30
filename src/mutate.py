@@ -25,19 +25,16 @@ def mutate_hparams(config: dict) -> dict:
         if hparam["mutate"]:
 
             if random.random() < global_mutation_rate:
+                dtype = hparam["dtype"]
 
                 if hparam["ptype"] == "scalar":
                     value = hparam["val"]
-                    dtype = hparam["dtype"]
-
                     value = mutate_value(value, dtype, config, hparam)
-
                     hparam["val"] = value
 
                 elif hparam["ptype"] == "vector":
-                    dtype = hparam["dtype"]
-
                     val = list()
+
                     for value in hparam["val"]:
                         value = mutate_value(value, dtype, config, hparam)
                         val.append(value)
@@ -50,7 +47,10 @@ def mutate_hparams(config: dict) -> dict:
     return config
 
 
-def mutate_value(value: Union[float, int], dtype: str, config: dict, hparam) -> Union[float, int]:
+def mutate_value(value: Union[float, int],
+                 dtype: str,
+                 config: dict,
+                 hparam: dict) -> Union[float, int]:
     """Mutates single value of hyperparameter.
 
     Args:
@@ -109,7 +109,9 @@ def comp_discrete_step_size(hparam: dict) -> Union[int, float]:
     return rand_sign() * eta
 
 
-def comp_proportional_step_size(value, local_mutation_rate, dtype) -> Union[int, float]:
+def comp_proportional_step_size(value: Union[float, int],
+                                local_mutation_rate: float,
+                                dtype: str) -> Union[int, float]:
     """Computes step size proportional to value.
 
     Args:
