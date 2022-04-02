@@ -1,3 +1,5 @@
+"""Module to load and enrich configuration file.
+"""
 import json
 import torch
 import yaml
@@ -13,11 +15,13 @@ def load_yaml(file_path: str) -> dict:
         Dictionary holding content of yaml file.
 
     """
-    with open(file_path, "r") as fp:
+    with open(file_path, "r") as file:
         try:
-            return yaml.safe_load(fp)
+            config = yaml.safe_load(file)
         except yaml.YAMLError as exc:
             print(exc)
+
+    return config
 
 
 def load_config(config_path: str, hparam_path: str) -> dict:
@@ -31,7 +35,7 @@ def load_config(config_path: str, hparam_path: str) -> dict:
         Configuration as Python dictionary.
 
     """
-    configuration = dict()
+    configuration = {}
 
     # Load configuration files
     config = load_yaml(file_path=config_path)

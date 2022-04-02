@@ -1,20 +1,25 @@
 """Evolution of neural networks with genetic optimization.
 
+todo:
+    * add better folder structure
+
 """
+import time
+from copy import deepcopy
+from datetime import datetime
+
+import numpy as np
+from torch.utils.tensorboard import SummaryWriter
+
 from src.trainer import train
 from src.mutate import mutate_hparams
 from src.data import get_dataloader
 from src.config import load_config
 
-from copy import deepcopy
-from datetime import datetime
-import numpy as np
-import time
 
-from torch.utils.tensorboard import SummaryWriter
-
-
-def main():
+def main() -> None:
+    """Main method to run genetic optimization.
+    """
 
     config_path = "config/config.yml"
     hparam_path = "config/hparams.yml"
@@ -40,12 +45,12 @@ def main():
 
     # Main optimization loop
     for i in range(n_generations):
-        t0 = time.time()
+        time_0 = time.time()
         print(f"Iteration {i:05d}")
 
         # Reset all values in stats dictionary
         for k in stats_dict.keys():
-            stats_dict[k] = list()
+            stats_dict[k] = []
 
         # Loop over all agents
         for config in configs:
@@ -61,7 +66,7 @@ def main():
         configs = [mutate_hparams(config=best_config) for _ in range(n_agents)]
 
         # Track average time per generation
-        time_per_generation = (time.time()-t0)/n_agents
+        time_per_generation = (time.time()-time_0)/n_agents
         writer.add_scalar("time_series/time_per_generation", time_per_generation, global_step=i)
 
         # Add scalars to Tensorboard
@@ -79,8 +84,8 @@ def main():
 
         # Add hyperparameters and metrics of the best agent to tensorboard
         if base_config["add_hyperparameters"]:
-            hparam_dict = dict()
-            metric_dict = dict()
+            hparam_dict = {}
+            metric_dict = {}
 
             for hparam_name, hparam in best_config["hparam"].items():
                 if hparam_name == "n_dims_hidden":

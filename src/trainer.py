@@ -1,15 +1,23 @@
 """Method to train neural network.
-
 """
-from src.models import MLP
-from src.utils import comp_loss_accuracy
+from torch import nn
+from torch import optim
 
-import torch.nn as nn
-import torch.optim as optim
+from src.models import MLP
+from src.stats import comp_loss_accuracy
 
 
 def train(dataloader: tuple, config: dict) -> dict:
+    """Trains model according to provided configuration.
 
+    Args:
+        dataloader: PyTorch dataloader.
+        config: Dictionary holding configuration.
+
+    Returns:
+        Dictionary holding metrics from training.
+
+    """
     device = config["device"]
     n_epochs = config["n_epochs"]
     learning_rate = config["hparam"]["learning_rate"]["val"]
@@ -23,7 +31,7 @@ def train(dataloader: tuple, config: dict) -> dict:
 
     trainloader, testloader = dataloader
 
-    for epoch in range(n_epochs):
+    for _ in range(n_epochs):
 
         for x_data, y_data in trainloader:
 
@@ -53,10 +61,11 @@ def train(dataloader: tuple, config: dict) -> dict:
                                                     dataloader=trainloader,
                                                     device=device)
 
-    stats = dict()
-    stats["test_loss"] = test_loss
-    stats["train_loss"] = train_loss
-    stats["test_accuracy"] = test_accuracy
-    stats["train_accuracy"] = train_accuracy
+    stats = {
+        "test_loss": test_loss,
+        "train_loss": train_loss,
+        "test_accuracy": test_accuracy,
+        "train_accuracy": train_accuracy
+    }
 
     return stats

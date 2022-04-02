@@ -1,8 +1,11 @@
-import numpy as np
-import random
+"""Methods for hyperparameter mutation.
+"""
 
+import random
 from copy import deepcopy
 from typing import Union
+
+import numpy as np
 
 
 def mutate_hparams(config: dict) -> dict:
@@ -20,7 +23,7 @@ def mutate_hparams(config: dict) -> dict:
     global_mutation_rate = config["global_mutation_rate"]
 
     # Mutate parameters
-    for hparam_name, hparam in config["hparam"].items():
+    for hparam in config["hparam"].values():
 
         if hparam["mutate"]:
 
@@ -33,7 +36,7 @@ def mutate_hparams(config: dict) -> dict:
                     hparam["val"] = value
 
                 elif hparam["ptype"] == "vector":
-                    val = list()
+                    val = []
 
                     for value in hparam["val"]:
                         value = mutate_value(value, dtype, config, hparam)
@@ -82,11 +85,11 @@ def mutate_value(value: Union[float, int],
 
     # Cast to correct datatype
     if dtype == "int":
-        return int(value)
-    elif dtype == "float":
-        return float(value)
-    else:
-        raise NotImplementedError(f"'Type' must be 'int' or 'float', got {dtype = } instead.")
+        value = int(value)
+    else:  # dtype == "float":
+        value = float(value)
+
+    return value
 
 
 def comp_discrete_step_size(hparam: dict) -> Union[int, float]:
@@ -128,7 +131,7 @@ def comp_proportional_step_size(value: Union[float, int],
 
     # Ensure change of parameter
     if dtype == "int":
-        eta = eta if eta >= 1 else 1
+        eta = eta if eta > 1 else 1
 
     return rand_sign() * eta
 

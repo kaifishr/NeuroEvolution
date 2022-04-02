@@ -1,5 +1,5 @@
-import numpy as np
-import random
+"""Module holds method to compute loss and accuracy for provided network and dataloader.
+"""
 import torch
 
 
@@ -8,44 +8,33 @@ def comp_loss_accuracy(model, criterion, dataloader, device) -> tuple[float, flo
     """Compute loss and accuracy for provided model and dataloader.
 
     Args:
-        model:
-        criterion:
-        dataloader:
-        device:
+        model: PyTorch neural network.
+        criterion: Loss function.
+        dataloader: PyTorch dataloader.
+        device: CPU / GPU.
 
     Returns:
+        Loss and accuracy.
 
     """
     running_loss = 0.0
     running_accuracy = 0.0
     running_counter = 0
 
-    model.eval()
+    model.train(False)
 
     for x_data, y_data in dataloader:
         inputs, labels = x_data.to(device), y_data.to(device)
         outputs = model(inputs)
         loss = criterion(outputs, labels).item()
-        pred = (torch.argmax(outputs, dim=1) == labels).float().sum().item()
+        predictions = (torch.argmax(outputs, dim=1) == labels).float().sum().item()
         running_loss += loss
-        running_accuracy += pred
+        running_accuracy += predictions
         running_counter += labels.size(0)
 
-    model.train()
+    model.train(True)
 
     loss = running_loss / running_counter
     accuracy = running_accuracy / running_counter
 
     return loss, accuracy
-
-
-def set_random_seeds(random_seed: int) -> None:
-    """Seeds random number generators of PyTorch, Numpy, and Random module.
-
-    Args:
-        random_seed: Initial random seed.
-
-    """
-    torch.manual_seed(random_seed)
-    np.random.seed(random_seed)
-    random.seed(random_seed)

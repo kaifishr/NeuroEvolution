@@ -10,7 +10,7 @@ hparam:
     mutate: true
     dtype: "float"
     ptype: "scalar"
-    val: 1.0e-4
+    val: 1.0e-3
     val_min: 1.0e-6
     val_max: 1.0e-2
     step_size: 1.0e-5
@@ -19,7 +19,7 @@ hparam:
     mutate: true
     dtype: "int"
     ptype: "scalar"
-    val: 4
+    val: 32
     val_min: 1
     val_max: 128
     step_size: 1

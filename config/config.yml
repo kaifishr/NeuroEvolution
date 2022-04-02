@@ -7,7 +7,7 @@
 ######
 # str: blobs, mnist, fashion_mnist, cifar10
 dataset: "fashion_mnist"
-input_shape: [1, 28, 28]
+input_shape: [1, 28, 28]  # deduce this from dataloader
 n_classes: 10
 #
 # dataset: "cifar10"
@@ -15,7 +15,7 @@ n_classes: 10
 # n_classes: 10
 #
 # float: Use subset of dataset: float (0.0, 1.0]
-subset_ratio: 0.02
+subset_ratio: 0.001
 
 ###########
 # Evolution
@@ -24,16 +24,16 @@ subset_ratio: 0.02
 n_generations: 9999999999
 n_agents: 4
 # Options: "discrete", "proportional"
-mutation_operator: "discrete"
+mutation_operator: "proportional"
 global_mutation_rate: 0.5
-local_mutation_rate: 0.0
+local_mutation_rate: 0.2
 increase_epochs_every_n_epochs: 1000
 
 ##########
 # Training
 ##########
 # Parameter optimization with gradient descent.
-n_epochs: 4
+n_epochs: 20
 batch_size_test: 500
 
 ###############

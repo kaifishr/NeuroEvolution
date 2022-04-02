@@ -1,36 +1,41 @@
 """Module provides methods for datasets and data loaders.
 """
-from src.random_subset import RandomSubset
-
 import torchvision
-import torchvision.transforms as transforms
+from torchvision import transforms
 from torch.utils.data import DataLoader
+
+from src.random_subset import RandomSubset
 
 
 def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
+    """
 
+    Args:
+        n_workers: Number of workers.
+        subset_ratio: Ratio defining size of subset.
+        **config: Dictionary holding configuration.
+
+    Returns:
+        Train and test dataloader.
+
+    """
     batch_size = config["hparam"]["batch_size"]["val"]
     batch_size_test = config["batch_size_test"]
 
     # Define transforms for dataset
-    avg = (0.4914, 0.4822, 0.4465)
-    std = (0.2023, 0.1994, 0.2010)
+    stats = {"mean": (0.4914, 0.4822, 0.4465), "std": (0.2023, 0.1994, 0.2010)}
 
-    train_transforms = [
+    transform_train = transforms.Compose([
         # transforms.RandomHorizontalFlip(),
         # transforms.RandomRotation(degrees=10),
         # transforms.RandomCrop(32, padding=5),
         transforms.ToTensor(),
-        transforms.Normalize(avg, std)
-    ]
-
-    test_transforms = [
+        transforms.Normalize(**stats)
+    ])
+    transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(avg, std)
-    ]
-
-    transform_train = transforms.Compose(train_transforms)
-    transform_test = transforms.Compose(test_transforms)
+        transforms.Normalize(**stats)
+    ])
 
     # Create dataset
     trainset_config = dict(root="./data", train=True, download=True, transform=transform_train)
@@ -56,29 +61,34 @@ def get_cifar10(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
 
 
 def get_fashion_mnist(n_workers: int, subset_ratio: float, **config: dict) -> tuple:
+    """
 
+    Args:
+        n_workers: Number of workers.
+        subset_ratio: Ratio defining size of subset.
+        **config: Dictionary holding configuration.
+
+    Returns:
+        Train and test dataloader.
+
+    """
     batch_size = config["hparam"]["batch_size"]["val"]
     batch_size_test = config["batch_size_test"]
 
     # Fashion-MNIST
-    avg = (0.2859,)
-    std = (0.3530,)
+    stats = {"mean": (0.2859,), "std": (0.3530,)}
 
     # Define transforms for dataset
-    train_transforms = [
+    transform_train = transforms.Compose([
         # transforms.RandomRotation(degrees=10),
         # transforms.RandomCrop(28, padding=2),
         transforms.ToTensor(),
-        transforms.Normalize(avg, std)
-    ]
-
-    test_transforms = [
+        transforms.Normalize(**stats)
+    ])
+    transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(avg, std)
-    ]
-
-    transform_train = transforms.Compose(train_transforms)
-    transform_test = transforms.Compose(test_transforms)
+        transforms.Normalize(**stats)
+    ])
 
     # Create dataset
     trainset_config = dict(root="./data", train=True, download=True, transform=transform_train)
@@ -125,4 +135,3 @@ def get_dataloader(dataset, **config: dict) -> tuple[DataLoader, DataLoader]:
         raise NotImplementedError(f"Dataset {dataset} not implemented.")
 
     return trainloader, testloader
-
